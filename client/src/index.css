@@ -1,15 +1,70 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #2563EB;
-  --color-accent: #14B8A6;
+  /* Zen-inspired warm color palette */
+  --color-primary: #E8956C;
+  --color-primary-dark: #D67D5A;
+  --color-secondary: #6B9BD1;
+  --color-secondary-light: #87CEEB;
+  --color-accent: #C85A54;
+  --color-accent-dark: #A0564B;
+  --color-warm-bg: #F5DEB3;
+  --color-peach: #F4A460;
+  --color-coral: #E8956C;
+  --color-sky: #87CEEB;
+  --color-sunset: #FF9B7A;
+  --color-earth: #D4A574;
+  
+  /* Neutral colors */
+  --color-cream: #FFF8F0;
+  --color-sand: #F5E6D3;
+  --color-text-dark: #3D3D3D;
+  --color-text-light: #6B6B6B;
 
-  --font-sans: 'Inter', sans-serif;
+  /* Fonts */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: 'Poppins', sans-serif;
+  
+  /* Border radius - very rounded like the reference */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+  
+  /* Shadows - soft and subtle */
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-large: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+    @apply bg-cream text-text-dark font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .gradient-warm {
+    background: linear-gradient(135deg, #F4A460 0%, #E8956C 50%, #C85A54 100%);
+  }
+  
+  .gradient-sky {
+    background: linear-gradient(180deg, #87CEEB 0%, #6B9BD1 100%);
+  }
+  
+  .gradient-sunset {
+    background: linear-gradient(135deg, #FF9B7A 0%, #E8956C 50%, #D67D5A 100%);
+  }
+  
+  .card-zen {
+    @apply rounded-[28px] shadow-soft bg-white;
+  }
+  
+  .btn-zen {
+    @apply rounded-[20px] px-6 py-3 font-medium transition-all duration-300 shadow-soft hover:shadow-medium;
   }
 }

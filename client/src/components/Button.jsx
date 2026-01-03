@@ -8,13 +8,14 @@ const Button = ({
     fullWidth = false,
     ...props
 }) => {
-    const baseStyles = "inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+    const baseStyles = "inline-flex items-center justify-center px-6 py-3 rounded-[20px] font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-soft hover:shadow-medium";
 
     const variants = {
-        primary: "bg-primary text-white hover:bg-blue-700 focus:ring-primary",
-        secondary: "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 focus:ring-slate-500",
-        outline: "bg-transparent border border-primary text-primary hover:bg-blue-50 focus:ring-primary",
-        ghost: "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+        primary: "bg-primary text-white hover:bg-primary-dark focus:ring-primary",
+        secondary: "bg-secondary text-white hover:bg-secondary-light focus:ring-secondary",
+        outline: "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-white focus:ring-primary",
+        ghost: "bg-transparent text-text-light hover:bg-sand hover:text-text-dark shadow-none",
+        accent: "bg-accent text-white hover:bg-accent-dark focus:ring-accent",
     };
 
     const widthClass = fullWidth ? "w-full" : "";

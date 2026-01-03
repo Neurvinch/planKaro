@@ -3,50 +3,67 @@ import { Menu, X, Globe, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from './Button';
 
-const Navbar = () => {
+const Navbar = ({ user }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <nav className="bg-white border-b border-slate-100 sticky top-0 z-40">
+        <nav className="bg-cream border-b border-sand sticky top-0 z-40 backdrop-blur-sm bg-cream/95">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     {/* Logo */}
                     <div className="flex items-center">
                         <Link to="/" className="flex items-center gap-2">
-                            <div className="bg-primary/10 p-2 rounded-lg">
+                            <div className="bg-primary/10 p-2 rounded-[16px]">
                                 <Globe className="h-6 w-6 text-primary" />
                             </div>
-                            <span className="font-display font-bold text-xl text-slate-900">
-                               PlanKaro
+                            <span className="font-display font-bold text-xl text-text-dark">
+                                PlanKaro
                             </span>
                         </Link>
                     </div>
 
                     {/* Desktop Menu */}
                     <div className="hidden md:flex items-center gap-6">
-                        <Link to="#" className="text-slate-600 hover:text-primary font-medium transition-colors">
+                        <Link to="#" className="text-text-light hover:text-primary font-medium transition-colors">
                             Destinations
                         </Link>
-                        <Link to="#" className="text-slate-600 hover:text-primary font-medium transition-colors">
+                        <Link to="#" className="text-text-light hover:text-primary font-medium transition-colors">
                             Hotels
                         </Link>
-                        <Link to="#" className="text-slate-600 hover:text-primary font-medium transition-colors">
+                        <Link to="#" className="text-text-light hover:text-primary font-medium transition-colors">
                             Flights
                         </Link>
-                        <div className="h-6 w-px bg-slate-200 mx-2" />
-                        <Link to="/login" className="text-slate-600 hover:text-primary font-medium transition-colors">
-                            Login
-                        </Link>
-                        <Link to="/signup">
-                            <Button size="sm">Sign Up</Button>
-                        </Link>
+                        <div className="h-6 w-px bg-sand mx-2" />
+
+                        {user ? (
+                            <div className="flex items-center gap-3 cursor-pointer">
+                                <span className="text-text-dark font-medium">{user.name}</span>
+                                <div className="h-10 w-10 rounded-full border-2 border-white shadow-soft overflow-hidden">
+                                    <img src={user.avatar} alt="Profile" className="h-full w-full object-cover" />
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <Link to="/login" className="text-text-light hover:text-primary font-medium transition-colors">
+                                    Login
+                                </Link>
+                                <Link to="/signup">
+                                    <Button size="sm">Sign Up</Button>
+                                </Link>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile menu button */}
-                    <div className="md:hidden flex items-center">
+                    <div className="md:hidden flex items-center gap-4">
+                        {user && (
+                            <div className="h-8 w-8 rounded-full border border-white shadow-sm overflow-hidden">
+                                <img src={user.avatar} alt="Profile" className="h-full w-full object-cover" />
+                            </div>
+                        )}
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className="text-slate-600 hover:text-slate-900 p-2"
+                            className="text-text-light hover:text-text-dark p-2"
                         >
                             {isOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
@@ -56,38 +73,65 @@ const Navbar = () => {
 
             {/* Mobile Menu */}
             {isOpen && (
-                <div className="md:hidden bg-white border-t border-slate-100 absolute w-full shadow-lg">
+                <div className="md:hidden bg-cream border-t border-sand absolute w-full shadow-soft z-50">
                     <div className="px-4 pt-2 pb-6 space-y-2">
+                        {user && (
+                            <div className="px-3 py-3 mb-2 border-b border-sand flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full border-2 border-white shadow-sm overflow-hidden">
+                                    <img src={user.avatar} alt="Profile" className="h-full w-full object-cover" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-text-dark">{user.name}</p>
+                                    <p className="text-xs text-text-light">View Profile</p>
+                                </div>
+                            </div>
+                        )}
                         <Link
                             to="#"
-                            className="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-primary font-medium"
+                            className="block px-3 py-2 rounded-[16px] text-text-light hover:bg-sand hover:text-primary font-medium"
                         >
                             Destinations
                         </Link>
                         <Link
                             to="#"
-                            className="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-primary font-medium"
+                            className="block px-3 py-2 rounded-[16px] text-text-light hover:bg-sand hover:text-primary font-medium"
                         >
                             Hotels
                         </Link>
                         <Link
                             to="#"
-                            className="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-primary font-medium"
+                            className="block px-3 py-2 rounded-[16px] text-text-light hover:bg-sand hover:text-primary font-medium"
                         >
                             Flights
                         </Link>
-                        <div className="border-t border-slate-100 my-2" />
-                        <Link
-                            to="/login"
-                            className="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-primary font-medium"
-                        >
-                            Login
-                        </Link>
-                        <div className="px-3 pt-2">
-                            <Link to="/signup">
-                                <Button fullWidth>Sign Up</Button>
-                            </Link>
-                        </div>
+
+                        {!user && (
+                            <>
+                                <div className="border-t border-sand my-2" />
+                                <Link
+                                    to="/login"
+                                    className="block px-3 py-2 rounded-[16px] text-text-light hover:bg-sand hover:text-primary font-medium"
+                                >
+                                    Login
+                                </Link>
+                                <div className="px-3 pt-2">
+                                    <Link to="/signup">
+                                        <Button fullWidth>Sign Up</Button>
+                                    </Link>
+                                </div>
+                            </>
+                        )}
+                        {user && (
+                            <>
+                                <div className="border-t border-sand my-2" />
+                                <Link
+                                    to="/logout"
+                                    className="block px-3 py-2 rounded-[16px] text-accent hover:bg-red-50 font-medium"
+                                >
+                                    Log Out
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

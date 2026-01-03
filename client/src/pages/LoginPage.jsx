@@ -32,24 +32,24 @@ const LoginPage = () => {
     const isFormValid = formData.email && formData.password;
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-cream flex flex-col">
             <Navbar />
 
-            <div className="flex-1 flex flex-col items-center justify-center p-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-50 to-blue-50/20">
+            <div className="flex-1 flex flex-col items-center justify-center p-4 sm:px-6 lg:px-8 bg-gradient-to-b from-cream via-sand/30 to-peach/10">
                 <div className="w-full max-w-md">
                     <div className="text-center mb-8">
-                        <div className="inline-flex items-center justify-center p-3 bg-white rounded-xl shadow-sm mb-4">
+                        <div className="inline-flex items-center justify-center p-3 bg-white rounded-[20px] shadow-soft mb-4">
                             <Globe className="h-8 w-8 text-primary" />
                         </div>
-                        <h2 className="text-3xl font-display font-bold text-slate-900">
+                        <h2 className="text-3xl font-display font-bold text-text-dark">
                             Welcome back
                         </h2>
-                        <p className="mt-2 text-slate-600">
+                        <p className="mt-2 text-text-light">
                             Log in to your PlanKaro account
                         </p>
                     </div>
 
-                    <Card className="border-slate-200/60 shadow-lg shadow-slate-200/40 backdrop-blur-sm">
+                    <Card className="border-sand/60 shadow-medium backdrop-blur-sm">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Error Message */}
                             {error && (
@@ -60,7 +60,7 @@ const LoginPage = () => {
 
                             {/* Email */}
                             <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+                                <label htmlFor="email" className="block text-sm font-medium text-text-dark mb-1">
                                     Email Address
                                 </label>
                                 <input
@@ -68,7 +68,7 @@ const LoginPage = () => {
                                     name="email"
                                     type="email"
                                     required
-                                    className="block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 sm:text-sm"
+                                    className="block w-full px-4 py-2.5 bg-sand/30 border border-sand rounded-[16px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 sm:text-sm"
                                     placeholder="you@example.com"
                                     value={formData.email}
                                     onChange={handleChange}
@@ -78,10 +78,10 @@ const LoginPage = () => {
                             {/* Password */}
                             <div>
                                 <div className="flex items-center justify-between mb-1">
-                                    <label htmlFor="password" class="block text-sm font-medium text-slate-700">
+                                    <label htmlFor="password" class="block text-sm font-medium text-text-dark">
                                         Password
                                     </label>
-                                    <Link to="#" className="text-sm font-medium text-primary hover:text-blue-600 transition-colors">
+                                    <Link to="#" className="text-sm font-medium text-primary hover:text-primary-dark transition-colors">
                                         Forgot password?
                                     </Link>
                                 </div>
@@ -91,14 +91,14 @@ const LoginPage = () => {
                                         name="password"
                                         type={showPassword ? "text" : "password"}
                                         required
-                                        className="block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 sm:text-sm pr-10"
+                                        className="block w-full px-4 py-2.5 bg-sand/30 border border-sand rounded-[16px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 sm:text-sm pr-10"
                                         placeholder="••••••••"
                                         value={formData.password}
                                         onChange={handleChange}
                                     />
                                     <button
                                         type="button"
-                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-light hover:text-text-dark focus:outline-none"
                                         onClick={() => setShowPassword(!showPassword)}
                                     >
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -110,15 +110,15 @@ const LoginPage = () => {
                                 type="submit"
                                 fullWidth
                                 disabled={!isFormValid}
-                                className="py-2.5 rounded-xl shadow-lg shadow-primary/25 hover:shadow-primary/40 active:scale-[0.98] transition-all duration-200"
+                                className="py-2.5 rounded-[20px]"
                             >
                                 Log In
                             </Button>
 
                             <div className="text-center mt-6">
-                                <p className="text-sm text-slate-600">
+                                <p className="text-sm text-text-light">
                                     Don't have an account?{' '}
-                                    <Link to="/signup" className="font-semibold text-primary hover:text-blue-600 transition-colors">
+                                    <Link to="/signup" className="font-semibold text-primary hover:text-primary-dark transition-colors">
                                         Create account
                                     </Link>
                                 </p>
