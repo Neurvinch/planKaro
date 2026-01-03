@@ -4,7 +4,6 @@ import { Eye, EyeOff, Check, X } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Navbar from '../components/Navbar';
-import api from '../services/api';
 
 const SignupPage = () => {
     const navigate = useNavigate();
@@ -91,6 +90,9 @@ const SignupPage = () => {
             <div className="flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-cream via-sand/30 to-peach/10">
                 <div className="w-full max-w-md">
                     <div className="text-center mb-8">
+                        <div className="inline-flex items-center justify-center p-3 bg-white rounded-[20px] shadow-soft mb-4">
+                            <img src={logo} alt="PlanKaro Logo" className="h-10 w-auto" />
+                        </div>
                         <h2 className="text-3xl font-display font-bold text-text-dark">
                             Create an account
                         </h2>

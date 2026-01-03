@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
     MapPin, Calendar, Clock, Plus, GripVertical,
     MoreVertical, ChevronRight, Settings, Share2,
-    ArrowLeft, Image as ImageIcon
+    ArrowLeft, Image as ImageIcon, Train
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -10,13 +10,15 @@ import Button from '../components/Button';
 import Card from '../components/Card';
 import CitySearchModal from '../components/CitySearchModal';
 import ActivitySelectionModal from '../components/ActivitySelectionModal';
+import TrainSearchModal from '../components/TrainSearchModal';
 import TripTimeline from '../components/TripTimeline';
 
 const ItineraryPage = () => {
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
-    const [selectedCityForActivity, setSelectedCityForActivity] = useState(null);
-    const [selectedDayForActivity, setSelectedDayForActivity] = useState(null);
+    const [isTrainModalOpen, setIsTrainModalOpen] = useState(false);
+    const [selectedCityForActivity, setSelectedCityForActivity] = useState<string | null>(null);
+    const [selectedDayForActivity, setSelectedDayForActivity] = useState<number | null>(null);
     // Mock user
     const user = {
         name: "Alex",
@@ -108,7 +110,7 @@ const ItineraryPage = () => {
         setIsSearchModalOpen(false);
     };
 
-    const handleAddActivity = (activity) => {
+    const handleAddActivity = (activity: any) => {
         if (!selectedCityForActivity || !selectedDayForActivity) return;
 
         setTrip(prevTrip => {
@@ -123,11 +125,10 @@ const ItineraryPage = () => {
                         activities: [
                             ...day.activities,
                             {
-                                ...activity,
                                 id: `new_${Date.now()}`,
-                                title: activity.name, // Map name to title
-                                type: activity.category || "Other", // Map category to type
-                                time: "10:00 AM", // Default time
+                                title: activity.name,
+                                type: activity.category as any || "Other",
+                                time: "10:00 AM",
                                 location: activity.location,
                                 cost: activity.cost
                             }
@@ -140,6 +141,43 @@ const ItineraryPage = () => {
         });
 
         setIsActivityModalOpen(false);
+        setSelectedDayForActivity(null);
+    };
+
+    const handleAddTrainJourney = (train: any) => {
+        if (!selectedDayForActivity) return;
+
+        setTrip(prevTrip => {
+            const newCities = prevTrip.cities.map(city => {
+                // For simplicity, add to the first city or based on logic
+                // Here we just add to the day where user clicked "Add Train"
+                const hasTargetDay = city.days.some(d => d.day === selectedDayForActivity);
+                if (!hasTargetDay) return city;
+
+                const newDays = city.days.map(day => {
+                    if (day.day !== selectedDayForActivity) return day;
+
+                    return {
+                        ...day,
+                        activities: [
+                            ...day.activities,
+                            {
+                                id: `train_${Date.now()}`,
+                                title: `${train.number} - ${train.name}`,
+                                type: "Transport",
+                                time: train.departure,
+                                location: `${train.from} → ${train.to}`,
+                                cost: train.price
+                            }
+                        ]
+                    };
+                });
+                return { ...city, days: newDays };
+            });
+            return { ...prevTrip, cities: newCities };
+        });
+
+        setIsTrainModalOpen(false);
         setSelectedDayForActivity(null);
     };
 
@@ -267,12 +305,30 @@ const ItineraryPage = () => {
                                 {/* Trip Timeline Component */}
                                 <div className="mt-6">
                                     <TripTimeline
-                                        tripData={{ days: city.days }}
+                                        tripData={{ days: city.days as any }}
                                         title="Itinerary"
-                                        onAddActivity={(dayNumber) => openActivityModal(city.name, dayNumber)}
+                                        onAddActivity={(dayNumber) => {
+                                            // Show choice between activity and train
+                                            setSelectedDayForActivity(dayNumber);
+                                            setSelectedCityForActivity(city.name);
+                                            setIsActivityModalOpen(true);
+                                        }}
                                         onEditActivity={(activity) => console.log("Edit", activity)}
                                         onDeleteActivity={(id) => handleDelete(id)}
                                     />
+                                    <div className="mt-4 flex gap-3">
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            className="flex items-center gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200"
+                                            onClick={() => {
+                                                setSelectedDayForActivity(city.days[0].day); // Just an example
+                                                setIsTrainModalOpen(true);
+                                            }}
+                                        >
+                                            <Train size={16} /> Add Train Journey
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -303,7 +359,12 @@ const ItineraryPage = () => {
                 isOpen={isActivityModalOpen}
                 onClose={() => setIsActivityModalOpen(false)}
                 onAddActivity={handleAddActivity}
-                cityName={selectedCityForActivity}
+                cityName={selectedCityForActivity || "India"}
+            />
+            <TrainSearchModal
+                isOpen={isTrainModalOpen}
+                onClose={() => setIsTrainModalOpen(false)}
+                onAddTrain={handleAddTrainJourney}
             />
         </div>
     );

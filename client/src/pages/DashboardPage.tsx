@@ -4,6 +4,7 @@ import { Plus, MapPin, Calendar, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import ImageWithFallback from '../components/ImageWithFallback';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 
@@ -28,52 +29,51 @@ const DashboardPage = () => {
     const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([]);
 
     useEffect(() => {
-        const fetchTrips = async () => {
-            try {
-                const response = await api.get('/trips');
-                const trips = response.data;
+        // Load trips from localStorage or use defaults
+        const savedTrips = localStorage.getItem('planKaro_trips');
+        let trips = [];
 
-                // Filter for upcoming trips and take first 3
-                const upcoming = trips
-                    .filter((t: any) => t.status === 'Upcoming' || t.status === 'Planning')
-                    .slice(0, 3)
-                    .map((t: any) => ({
-                        id: t._id,
-                        name: t.name,
-                        dates: `${new Date(t.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(t.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
-                        cities: t.cities || 1,
-                        image: t.coverPhoto || 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800',
-                        status: t.status || 'Upcoming'
-                    }));
+        if (savedTrips) {
+            trips = JSON.parse(savedTrips);
+        } else {
+            // Default mock trips if storage is empty
+            trips = [
+                {
+                    id: 1,
+                    name: "Summer in Japan",
+                    dates: "Jul 10 - Jul 24",
+                    cities: 3,
+                    image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800",
+                    status: "Upcoming"
+                },
+                {
+                    id: 2,
+                    name: "Weekend in Paris",
+                    dates: "Sep 05 - Sep 08",
+                    cities: 1,
+                    image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=800",
+                    status: "Upcoming" // Changed from Planning to Upcoming for demo
+                }
+            ];
+            // Sync default to local storage so other pages see it
+            localStorage.setItem('planKaro_trips', JSON.stringify(trips));
+        }
 
-                setUpcomingTrips(upcoming);
-            } catch (error) {
-                console.error('Failed to fetch trips:', error);
-                // Fallback to mock data if API fails
-                setUpcomingTrips([
-                    {
-                        id: 1,
-                        name: "Summer in Japan",
-                        dates: "Jul 10 - Jul 24",
-                        cities: 3,
-                        image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800",
-                        status: "Upcoming"
-                    }
-                ]);
-            } finally {
-                setLoading(false);
-            }
-        };
+        // Filter for upcoming trips and take first 3
+        const upcoming = trips.filter(t => t.status === 'Upcoming' || t.status === 'Planning').slice(0, 3);
+        setUpcomingTrips(upcoming);
 
-        fetchTrips();
+        // Simulate loading
+        const timer = setTimeout(() => setLoading(false), 1000);
+        return () => clearTimeout(timer);
     }, []);
 
     // Mock Popular Destinations
     const popularDestinations = [
-        { id: 1, name: "Bali, Indonesia", image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=600" },
-        { id: 2, name: "Santorini, Greece", image: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&q=80&w=600" },
-        { id: 3, name: "Kyoto, Japan", image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=600" },
-        { id: 4, name: "New York, USA", image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&q=80&w=600" },
+        { id: 1, name: "Jaipur, Rajasthan", image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&q=80&w=600" },
+        { id: 2, name: "Munnar, Kerala", image: "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?auto=format&fit=crop&q=80&w=600" },
+        { id: 3, name: "Varanasi, UP", image: "https://images.unsplash.com/photo-1561361513-2d000a45f0dc?auto=format&fit=crop&q=80&w=600" },
+        { id: 4, name: "Leh, Ladakh", image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&q=80&w=600" },
     ];
 
 
@@ -155,7 +155,7 @@ const DashboardPage = () => {
                                     <Link to={`/itinerary/${trip.id}`} className="block h-full">
                                         <Card className="p-4 hover:shadow-medium transition-shadow cursor-pointer group h-full">
                                             <div className="relative h-48 mb-4 overflow-hidden rounded-[20px]">
-                                                <img
+                                                <ImageWithFallback
                                                     src={trip.image}
                                                     alt={trip.name}
                                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

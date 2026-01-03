@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Menu, X, Globe, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from './Button';
+import logo from '../assets/logo.jpg';
 
 interface User {
     name: string;
@@ -22,12 +23,7 @@ const Navbar: React.FC<NavbarProps> = ({ user }) => {
                     {/* Logo */}
                     <div className="flex items-center">
                         <Link to="/" className="flex items-center gap-2">
-                            <div className="bg-primary/10 p-2 rounded-[16px]">
-                                <Globe className="h-6 w-6 text-primary" />
-                            </div>
-                            <span className="font-display font-bold text-xl text-text-dark">
-                                PlanKaro
-                            </span>
+                            <img src={logo} alt="PlanKaro Logo" className="h-10 w-auto object-contain" />
                         </Link>
                     </div>
 
@@ -39,24 +35,23 @@ const Navbar: React.FC<NavbarProps> = ({ user }) => {
                         <Link to="/my-trips" className="text-text-light hover:text-primary font-medium transition-colors">
                             My Trips
                         </Link>
+                        <Link to="/community" className="text-text-light hover:text-primary font-medium transition-colors">
+                            Community
+                        </Link>
                         <Link to="#" className="text-text-light hover:text-primary font-medium transition-colors">
                             Destinations
-                        </Link>
-                        <Link to="#" className="text-text-light hover:text-primary font-medium transition-colors">
-                            Hotels
-                        </Link>
-                        <Link to="#" className="text-text-light hover:text-primary font-medium transition-colors">
-                            Flights
                         </Link>
                         <div className="h-6 w-px bg-sand mx-2" />
 
                         {user ? (
-                            <div className="flex items-center gap-3 cursor-pointer">
-                                <span className="text-text-dark font-medium">{user.name}</span>
-                                <div className="h-10 w-10 rounded-full border-2 border-white shadow-soft overflow-hidden">
-                                    <img src={user.avatar} alt="Profile" className="h-full w-full object-cover" />
+                            <Link to="/profile">
+                                <div className="flex items-center gap-3 cursor-pointer group">
+                                    <span className="text-text-dark font-medium group-hover:text-primary transition-colors">{user.name}</span>
+                                    <div className="h-10 w-10 rounded-full border-2 border-white shadow-soft overflow-hidden group-hover:border-primary transition-colors">
+                                        <img src={user.avatar} alt="Profile" className="h-full w-full object-cover" />
+                                    </div>
                                 </div>
-                            </div>
+                            </Link>
                         ) : (
                             <>
                                 <Link to="/login" className="text-text-light hover:text-primary font-medium transition-colors">
@@ -114,22 +109,16 @@ const Navbar: React.FC<NavbarProps> = ({ user }) => {
                             My Trips
                         </Link>
                         <Link
+                            to="/community"
+                            className="block px-3 py-2 rounded-[16px] text-text-light hover:bg-sand hover:text-primary font-medium"
+                        >
+                            Community
+                        </Link>
+                        <Link
                             to="#"
                             className="block px-3 py-2 rounded-[16px] text-text-light hover:bg-sand hover:text-primary font-medium"
                         >
                             Destinations
-                        </Link>
-                        <Link
-                            to="#"
-                            className="block px-3 py-2 rounded-[16px] text-text-light hover:bg-sand hover:text-primary font-medium"
-                        >
-                            Hotels
-                        </Link>
-                        <Link
-                            to="#"
-                            className="block px-3 py-2 rounded-[16px] text-text-light hover:bg-sand hover:text-primary font-medium"
-                        >
-                            Flights
                         </Link>
 
                         {!user && (

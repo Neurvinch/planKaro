@@ -9,6 +9,8 @@ import Button from '../components/Button';
 import Card from '../components/Card';
 import TripTimeline from '../components/TripTimeline';
 
+import logo from '../assets/logo.jpg';
+
 const PublicItineraryPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -202,10 +204,7 @@ const PublicItineraryPage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         <Link to="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
-                                <MapPin size={18} className="text-white" />
-                            </div>
-                            <span className="text-xl font-display font-bold text-text-dark">PlanKaro</span>
+                            <img src={logo} alt="PlanKaro Logo" className="h-10 w-auto object-contain" />
                         </Link>
                         <div className="flex items-center gap-3">
                             <Button variant="outline" size="sm" onClick={handleSaveTrip}>
@@ -397,7 +396,7 @@ const PublicItineraryPage = () => {
                 {/* Day-by-Day Itinerary */}
                 <div className="mb-12">
                     <TripTimeline
-                        tripData={{ days: trip.days }}
+                        tripData={{ days: trip.days as any }}
                         title="Day-by-Day Itinerary"
                         readOnly={true}
                     />
