@@ -4,6 +4,7 @@ import { Calendar as CalendarIcon, MapPin, Eye, Edit2, Trash2, Plus, Search, Gri
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import ImageWithFallback from '../components/ImageWithFallback';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Trip {
@@ -111,7 +112,7 @@ const MyTripsPage = () => {
                     {tripsList.map((trip) => (
                         <Card key={trip.id} className="group p-4 hover:shadow-medium transition-all duration-300">
                             <div className="relative h-48 mb-4 overflow-hidden rounded-[20px]">
-                                <img
+                                <ImageWithFallback
                                     src={trip.image}
                                     alt={trip.name}
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -292,7 +293,7 @@ const MyTripsPage = () => {
                                                 <div
                                                     key={trip.id}
                                                     className={`text-[10px] p-1.5 rounded truncate font-medium cursor-pointer ${trip.status === 'Ongoing' ? 'bg-primary text-white' :
-                                                            trip.status === 'Upcoming' ? 'bg-accent/20 text-accent-dark' : 'bg-gray-100 text-gray-600'
+                                                        trip.status === 'Upcoming' ? 'bg-accent/20 text-accent-dark' : 'bg-gray-100 text-gray-600'
                                                         }`}
                                                 >
                                                     {trip.name}

@@ -4,6 +4,7 @@ import { Plus, MapPin, Calendar, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import ImageWithFallback from '../components/ImageWithFallback';
 import { Link } from 'react-router-dom';
 
 interface Trip {
@@ -153,7 +154,7 @@ const DashboardPage = () => {
                                     <Link to={`/itinerary/${trip.id}`} className="block h-full">
                                         <Card className="p-4 hover:shadow-medium transition-shadow cursor-pointer group h-full">
                                             <div className="relative h-48 mb-4 overflow-hidden rounded-[20px]">
-                                                <img
+                                                <ImageWithFallback
                                                     src={trip.image}
                                                     alt={trip.name}
                                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

@@ -3,7 +3,9 @@ import { Mail, Phone, MapPin, Edit2, LogOut, Settings, Calendar, Globe } from 'l
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import Button from '../components/Button';
 import { Link } from 'react-router-dom';
+import ImageWithFallback from '../components/ImageWithFallback';
 
 const UserProfilePage = () => {
     // Mock user data
@@ -42,7 +44,7 @@ const UserProfilePage = () => {
                         <Card className="p-6 sticky top-24 text-center">
                             <div className="relative inline-block mx-auto mb-4">
                                 <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-br from-primary to-accent">
-                                    <img
+                                    <ImageWithFallback
                                         src={user.avatar}
                                         alt={user.name}
                                         className="w-full h-full rounded-full object-cover border-4 border-white"

@@ -3,6 +3,7 @@ import { Search, Filter, MessageSquare, Heart, Share2, MapPin } from 'lucide-rea
 import Navbar from '../components/Navbar';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import ImageWithFallback from '../components/ImageWithFallback';
 
 const CommunityPage = () => {
     const user = {
@@ -102,7 +103,7 @@ const CommunityPage = () => {
                             <div className="flex flex-col md:flex-row h-full">
                                 {/* Image */}
                                 <div className="md:w-2/5 h-48 md:h-auto relative">
-                                    <img
+                                    <ImageWithFallback
                                         src={post.image}
                                         alt={post.title}
                                         className="w-full h-full object-cover"
