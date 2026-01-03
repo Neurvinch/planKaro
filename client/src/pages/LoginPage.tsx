@@ -4,6 +4,8 @@ import { Globe, Eye, EyeOff } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Navbar from '../components/Navbar';
+import logo from '../assets/logo.jpg';
+import api from '../services/api';
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -37,8 +39,9 @@ const LoginPage = () => {
                 password: formData.password
             });
 
-            // Store token
+            // Store token and user
             localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
 
             // Navigate to dashboard
             navigate('/dashboard');

@@ -9,64 +9,65 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 
 interface Trip {
-    id: number;
+    _id: string;
     name: string;
-    dates: string;
-    cities: number;
-    image: string;
-    status: string;
+    startDate: string;
+    endDate: string;
+    stops: any[];
+    coverPhoto: string;
+    status?: string;
 }
 
 const DashboardPage = () => {
     const [loading, setLoading] = useState(true);
 
-    // Mock User Data
-    const user = {
-        name: "Alex",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
-    };
+    // Get User Data from localStorage
+    const [user, setUser] = useState({
+        name: "Traveler",
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Traveler"
+    });
 
     const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([]);
 
     useEffect(() => {
-        // Load trips from localStorage or use defaults
-        const savedTrips = localStorage.getItem('planKaro_trips');
-        let trips = [];
-
-        if (savedTrips) {
-            trips = JSON.parse(savedTrips);
-        } else {
-            // Default mock trips if storage is empty
-            trips = [
-                {
-                    id: 1,
-                    name: "Summer in Japan",
-                    dates: "Jul 10 - Jul 24",
-                    cities: 3,
-                    image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800",
-                    status: "Upcoming"
-                },
-                {
-                    id: 2,
-                    name: "Weekend in Paris",
-                    dates: "Sep 05 - Sep 08",
-                    cities: 1,
-                    image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=800",
-                    status: "Upcoming" // Changed from Planning to Upcoming for demo
-                }
-            ];
-            // Sync default to local storage so other pages see it
-            localStorage.setItem('planKaro_trips', JSON.stringify(trips));
+        // Load user from localStorage
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            try {
+                const parsed = JSON.parse(savedUser);
+                setUser({
+                    name: parsed.name || "Traveler",
+                    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${parsed.name || "Traveler"}`
+                });
+            } catch (e) {
+                console.error('Failed to parse user:', e);
+            }
         }
 
-        // Filter for upcoming trips and take first 3
-        const upcoming = trips.filter(t => t.status === 'Upcoming' || t.status === 'Planning').slice(0, 3);
-        setUpcomingTrips(upcoming);
+        const fetchTrips = async () => {
+            try {
+                setLoading(true);
+                const response = await api.get('/trips');
+                setUpcomingTrips(response.data);
+            } catch (err) {
+                console.error('Failed to fetch trips:', err);
+                // Fallback to empty if error
+                setUpcomingTrips([]);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        // Simulate loading
-        const timer = setTimeout(() => setLoading(false), 1000);
-        return () => clearTimeout(timer);
+        fetchTrips();
     }, []);
+
+    const formatDateRange = (start: string, end: string) => {
+        if (!start || !end) return "Dates TBD";
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+        return `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
+    };
 
     // Mock Popular Destinations
     const popularDestinations = [
@@ -150,18 +151,18 @@ const DashboardPage = () => {
                                 <SkeletonCard />
                             </>
                         ) : (
-                            upcomingTrips.map((trip) => (
-                                <motion.div key={trip.id} variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
-                                    <Link to={`/itinerary/${trip.id}`} className="block h-full">
+                            upcomingTrips.slice(0, 3).map((trip) => (
+                                <motion.div key={trip._id} variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+                                    <Link to={`/itinerary/${trip._id}`} className="block h-full">
                                         <Card className="p-4 hover:shadow-medium transition-shadow cursor-pointer group h-full">
                                             <div className="relative h-48 mb-4 overflow-hidden rounded-[20px]">
                                                 <ImageWithFallback
-                                                    src={trip.image}
+                                                    src={trip.coverPhoto || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=800"}
                                                     alt={trip.name}
                                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                 />
                                                 <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-primary">
-                                                    {trip.cities} Cities
+                                                    {trip.stops?.length || 0} Cities
                                                 </div>
                                             </div>
                                             <h3 className="text-xl font-bold text-text-dark mb-2 group-hover:text-primary transition-colors">
@@ -169,7 +170,7 @@ const DashboardPage = () => {
                                             </h3>
                                             <div className="flex items-center text-text-light text-sm">
                                                 <Calendar size={16} className="mr-2 text-primary" />
-                                                {trip.dates}
+                                                {formatDateRange(trip.startDate, trip.endDate)}
                                             </div>
                                         </Card>
                                     </Link>

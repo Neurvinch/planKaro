@@ -3,34 +3,68 @@ import { Mail, Phone, MapPin, Edit2, LogOut, Settings, Calendar, Globe } from 'l
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
-import Button from '../components/Button';
 import { Link } from 'react-router-dom';
 import ImageWithFallback from '../components/ImageWithFallback';
+import api from '../services/api';
 
 const UserProfilePage = () => {
-    // Mock user data
-    const user = {
-        name: "Alex Johnson",
-        username: "@alexj_travels",
+    const [loading, setLoading] = React.useState(true);
+    const [user, setUser] = React.useState({
+        name: "Traveler",
+        username: "@traveler",
         role: "Global Trotter",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
-        email: "alex.johnson@example.com",
-        phone: "+1 (555) 123-4567",
-        location: "San Francisco, CA",
-        bio: "Passionate traveler exploring the world one city at a time. Lover of coffee, mountains, and local cuisines.",
-        joined: "January 2023",
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Traveler",
+        email: "traveler@example.com",
+        phone: "+1 (555) 000-0000",
+        location: "Earth",
+        bio: "Exploring the world one step at a time.",
+        joined: "Recent",
         stats: {
-            trips: 12,
-            countries: 8,
-            photos: 456
+            trips: 0,
+            countries: 0,
+            photos: 0
         }
-    };
+    });
 
-    const previousTrips = [
-        { id: 1, name: "Tokyo Adventure", date: "Oct 2023", image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=400" },
-        { id: 2, name: "Paris Getaway", date: "Aug 2023", image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=400" },
-        { id: 3, name: "Bali Retreat", date: "Jun 2023", image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400" },
-    ];
+    const [previousTrips, setPreviousTrips] = React.useState<any[]>([]);
+
+    React.useEffect(() => {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            try {
+                const parsed = JSON.parse(savedUser);
+                setUser(prev => ({
+                    ...prev,
+                    name: parsed.name || prev.name,
+                    email: parsed.email || prev.email,
+                    username: `@${(parsed.name || "traveler").toLowerCase().replace(/\s/g, '')}`,
+                    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${parsed.name || "Traveler"}`
+                }));
+            } catch (e) {
+                console.error('Failed to parse user:', e);
+            }
+        }
+
+        const fetchTrips = async () => {
+            try {
+                const response = await api.get('/trips');
+                setPreviousTrips(response.data);
+                setUser(prev => ({
+                    ...prev,
+                    stats: {
+                        ...prev.stats,
+                        trips: response.data.length
+                    }
+                }));
+            } catch (err) {
+                console.error('Failed to fetch trips:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTrips();
+    }, []);
 
     return (
         <div className="min-h-screen bg-cream">
@@ -134,25 +168,42 @@ const UserProfilePage = () => {
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            {previousTrips.map(trip => (
-                                <Link to={`/itinerary/${trip.id}`} key={trip.id} className="block group">
-                                    <Card className="p-2 hover:shadow-medium transition-all h-full">
-                                        <div className="h-32 rounded-lg overflow-hidden mb-3 relative">
-                                            <img src={trip.image} alt={trip.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                            <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
-                                        </div>
-                                        <div className="px-2 pb-2 text-center">
-                                            <h3 className="font-bold text-text-dark text-sm mb-1">{trip.name}</h3>
-                                            <p className="text-xs text-text-light">{trip.date}</p>
-                                        </div>
-                                        <div className="pt-2 border-t border-sand/50 mt-1">
-                                            <div className="w-full py-1 bg-primary/10 text-primary text-xs font-medium rounded-lg text-center group-hover:bg-primary group-hover:text-white transition-colors">
-                                                View
+                            {loading ? (
+                                [1, 2, 3].map(i => (
+                                    <div key={i} className="h-48 bg-sand/20 animate-pulse rounded-2xl" />
+                                ))
+                            ) : previousTrips.length > 0 ? (
+                                previousTrips.slice(0, 3).map(trip => (
+                                    <Link to={`/itinerary/${trip._id}`} key={trip._id} className="block group">
+                                        <Card className="p-2 hover:shadow-medium transition-all h-full">
+                                            <div className="h-32 rounded-lg overflow-hidden mb-3 relative">
+                                                <img
+                                                    src={trip.coverPhoto || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=400"}
+                                                    alt={trip.name}
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                />
+                                                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
                                             </div>
-                                        </div>
-                                    </Card>
-                                </Link>
-                            ))}
+                                            <div className="px-2 pb-2 text-center">
+                                                <h3 className="font-bold text-text-dark text-sm mb-1 line-clamp-1">{trip.name}</h3>
+                                                <p className="text-xs text-text-light">
+                                                    {new Date(trip.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                                                </p>
+                                            </div>
+                                            <div className="pt-2 border-t border-sand/50 mt-1">
+                                                <div className="w-full py-1 bg-primary/10 text-primary text-xs font-medium rounded-lg text-center group-hover:bg-primary group-hover:text-white transition-colors">
+                                                    View
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    </Link>
+                                ))
+                            ) : (
+                                <div className="col-span-full py-12 text-center bg-sand/10 rounded-3xl border-2 border-dashed border-sand">
+                                    <p className="text-text-light">No trips planned yet.</p>
+                                    <Link to="/create-trip" className="text-primary font-medium hover:underline mt-2 inline-block">Plan your first trip</Link>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

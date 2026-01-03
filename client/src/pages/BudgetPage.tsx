@@ -4,79 +4,53 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { useParams } from 'react-router-dom';
+import api from '../services/api';
 
 const BudgetPage = () => {
-    // Mock user
-    const user = {
-        name: "Alex",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
-    };
+    const { id: tripId } = useParams();
+    const [loading, setLoading] = useState(true);
+    const [trip, setTrip] = useState<any>(null);
 
-    // Mock budget data
-    const budgetData = {
-        tripName: "Golden Triangle Tour",
-        totalBudget: 150000,
-        totalSpent: 98500,
-        currency: "INR",
-        days: 6,
-        categories: [
-            {
-                id: 1,
-                name: "Stay",
-                icon: Hotel,
-                budgeted: 60000,
-                spent: 45000,
-                color: "bg-blue-500",
-                lightColor: "bg-blue-50",
-                textColor: "text-blue-600"
-            },
-            {
-                id: 2,
-                name: "Travel",
-                icon: Plane,
-                budgeted: 30000,
-                spent: 22000,
-                color: "bg-purple-500",
-                lightColor: "bg-purple-50",
-                textColor: "text-purple-600"
-            },
-            {
-                id: 3,
-                name: "Activities",
-                icon: Camera,
-                budgeted: 30000,
-                spent: 18500,
-                color: "bg-primary",
-                lightColor: "bg-primary/10",
-                textColor: "text-primary"
-            },
-            {
-                id: 4,
-                name: "Food",
-                icon: Utensils,
-                budgeted: 30000,
-                spent: 13000,
-                color: "bg-green-500",
-                lightColor: "bg-green-50",
-                textColor: "text-green-600"
+    React.useEffect(() => {
+        const fetchTrip = async () => {
+            try {
+                setLoading(true);
+                const response = await api.get(`/trips/${tripId}`);
+                setTrip(response.data);
+            } catch (err) {
+                console.error('Failed to fetch trip for budget:', err);
+            } finally {
+                setLoading(false);
             }
-        ],
-        dailyBreakdown: [
-            { day: 1, date: "Nov 15", spent: 12000 },
-            { day: 2, date: "Nov 16", spent: 8500 },
-            { day: 3, date: "Nov 17", spent: 15000 },
-            { day: 4, date: "Nov 18", spent: 22000 },
-            { day: 5, date: "Nov 19", spent: 25000 },
-            { day: 6, date: "Nov 20", spent: 16000 }
-        ]
-    };
+        };
 
-    const remaining = budgetData.totalBudget - budgetData.totalSpent;
-    const percentageSpent = (budgetData.totalSpent / budgetData.totalBudget) * 100;
-    const averagePerDay = budgetData.totalSpent / budgetData.days;
-    const maxDailySpent = Math.max(...budgetData.dailyBreakdown.map(d => d.spent));
+        if (tripId) fetchTrip();
+    }, [tripId]);
 
-    // Budget status
+    if (loading) return (
+        <div className="min-h-screen bg-cream flex items-center justify-center">
+            <div className="animate-pulse flex flex-col items-center">
+                <div className="w-16 h-16 bg-primary/20 rounded-full mb-4"></div>
+                <div className="h-4 w-48 bg-sand/40 rounded"></div>
+            </div>
+        </div>
+    );
+
+    if (!trip) return (
+        <div className="min-h-screen bg-cream flex flex-col items-center justify-center">
+            <h2 className="text-2xl font-bold text-text-dark">Trip not found</h2>
+            <Link to="/dashboard" className="text-primary mt-4 hover:underline">Back to Dashboard</Link>
+        </div>
+    );
+
+    const totalBudget = trip.budget || 0;
+    const totalSpent = 0; // Mock spent since backend doesn't track expenses yet
+    const remaining = totalBudget - totalSpent;
+    const percentageSpent = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+    const days = Math.ceil((new Date(trip.endDate).getTime() - new Date(trip.startDate).getTime()) / (1000 * 60 * 60 * 24)) || 1;
+    const averagePerDay = totalSpent / days;
+
     const getBudgetStatus = () => {
         if (percentageSpent >= 90) return { status: 'critical', color: 'text-red-600', bgColor: 'bg-red-50', icon: AlertCircle };
         if (percentageSpent >= 75) return { status: 'warning', color: 'text-orange-600', bgColor: 'bg-orange-50', icon: TrendingUp };
@@ -86,22 +60,29 @@ const BudgetPage = () => {
     const budgetStatus = getBudgetStatus();
     const StatusIcon = budgetStatus.icon;
 
+    const categories = [
+        { id: 1, name: "Stay", icon: Hotel, budgeted: totalBudget * 0.4, spent: 0, color: "bg-blue-500", lightColor: "bg-blue-50", textColor: "text-blue-600" },
+        { id: 2, name: "Travel", icon: Plane, budgeted: totalBudget * 0.2, spent: 0, color: "bg-purple-500", lightColor: "bg-purple-50", textColor: "text-purple-600" },
+        { id: 3, name: "Activities", icon: Camera, budgeted: totalBudget * 0.2, spent: 0, color: "bg-primary", lightColor: "bg-primary/10", textColor: "text-primary" },
+        { id: 4, name: "Food", icon: Utensils, budgeted: totalBudget * 0.2, spent: 0, color: "bg-green-500", lightColor: "bg-green-50", textColor: "text-green-600" }
+    ];
+
     return (
         <div className="min-h-screen bg-cream">
-            <Navbar user={user} />
+            <Navbar />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-4">
-                        <Link to="/itinerary/1">
+                        <Link to={`/itinerary/${tripId}`}>
                             <button className="p-2 hover:bg-sand/20 rounded-full transition-colors">
                                 <ArrowLeft size={24} className="text-text-dark" />
                             </button>
                         </Link>
                         <div>
                             <h1 className="text-3xl font-display font-bold text-text-dark">Budget Overview</h1>
-                            <p className="text-text-light mt-1">{budgetData.tripName}</p>
+                            <p className="text-text-light mt-1">{trip.name}</p>
                         </div>
                     </div>
                     <Button variant="secondary" className="hidden sm:flex items-center gap-2">
@@ -125,9 +106,9 @@ const BudgetPage = () => {
                             </div>
                             <div className="flex items-baseline gap-3 mb-4">
                                 <h3 className="text-4xl font-display font-bold text-text-dark">
-                                    ₹{budgetData.totalSpent.toLocaleString()}
+                                    ₹{totalSpent.toLocaleString()}
                                 </h3>
-                                <span className="text-text-light">of ₹{budgetData.totalBudget.toLocaleString()}</span>
+                                <span className="text-text-light">of ₹{totalBudget.toLocaleString()}</span>
                             </div>
 
                             {/* Progress Bar */}
@@ -166,7 +147,7 @@ const BudgetPage = () => {
                 <div className="mb-8">
                     <h2 className="text-2xl font-display font-semibold text-text-dark mb-6">Cost by Category</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {budgetData.categories.map((category) => {
+                        {categories.map((category) => {
                             const Icon = category.icon;
                             const categoryPercentage = (category.spent / category.budgeted) * 100;
                             const isOverBudget = category.spent > category.budgeted;
@@ -219,28 +200,11 @@ const BudgetPage = () => {
                             <Calendar size={20} className="text-primary" />
                         </div>
 
-                        <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
-                            {budgetData.dailyBreakdown.map((day) => {
-                                const barWidth = (day.spent / maxDailySpent) * 100;
-                                return (
-                                    <div key={day.day} className="group">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <span className="text-sm font-medium text-text-dark">
-                                                Day {day.day} <span className="text-text-light text-xs">({day.date})</span>
-                                            </span>
-                                            <span className="text-sm font-semibold text-text-dark">
-                                                ₹{day.spent.toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <div className="relative h-2 bg-sand/20 rounded-full overflow-hidden">
-                                            <div
-                                                className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-primary-dark rounded-full transition-all duration-300 group-hover:opacity-80"
-                                                style={{ width: `${barWidth}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                        <div className="flex items-center justify-center h-48 bg-gradient-to-br from-sand/10 to-primary/5 rounded-2xl border-2 border-dashed border-sand/50">
+                            <div className="text-center">
+                                <p className="text-text-light font-medium">No expenses recorded yet</p>
+                                <p className="text-xs text-text-light/70 mt-1">Start adding expenses to see the breakdown</p>
+                            </div>
                         </div>
                     </Card >
 

@@ -6,78 +6,50 @@ import Button from '../components/Button';
 import Card from '../components/Card';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '../services/api';
 
 interface Trip {
-    id: number;
+    _id: string;
     name: string;
-    dates: string;
-    cities: number;
-    location: string;
-    image: string;
-    status: string;
+    startDate: string;
+    endDate: string;
+    stops: any[];
+    coverPhoto: string;
+    description?: string;
+    status?: string;
 }
 
 const MyTripsPage = () => {
-    // Mock user
-    const user = {
-        name: "Alex",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
-    };
-
-    const initialMockTrips: Trip[] = [
-        {
-            id: 1,
-            name: "Royal Rajasthan Tour",
-            dates: "Nov 10 - Nov 16, 2024",
-            cities: 3,
-            location: "Jaipur, Udaipur, Jodhpur",
-            image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&q=80&w=800",
-            status: "Upcoming"
-        },
-        {
-            id: 2,
-            name: "Weekend in Goa",
-            dates: "Dec 05 - Dec 08, 2024",
-            cities: 1,
-            location: "North Goa, India",
-            image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&q=80&w=800",
-            status: "Ongoing"
-        },
-        {
-            id: 3,
-            name: "Rishikesh Yoga Retreat",
-            dates: "Jan 15 - Jan 22, 2025",
-            cities: 1,
-            location: "Rishikesh, Uttarakhand",
-            image: "https://images.unsplash.com/photo-1518002171953-a080ee806dab?auto=format&fit=crop&q=80&w=800",
-            status: "Completed"
-        },
-        {
-            id: 4,
-            name: "Ladakh Bike Trip",
-            dates: "Jun 10 - Jun 20, 2025",
-            cities: 4,
-            location: "Leh, Ladakh",
-            image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&q=80&w=800",
-            status: "Draft"
-        }
-    ];
-
-    const [trips, setTrips] = useState<Trip[]>(() => {
-        const savedTrips = localStorage.getItem('planKaro_trips');
-        return savedTrips ? JSON.parse(savedTrips) : initialMockTrips;
-    });
-
+    const [trips, setTrips] = useState<Trip[]>([]);
+    const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState<'grid' | 'calendar'>('grid');
-    const [currentMonth, setCurrentMonth] = useState(new Date(2024, 10)); // Nov 2024 start
+    const [currentMonth, setCurrentMonth] = useState(new Date());
 
     useEffect(() => {
-        localStorage.setItem('planKaro_trips', JSON.stringify(trips));
-    }, [trips]);
+        const fetchTrips = async () => {
+            try {
+                setLoading(true);
+                const response = await api.get('/trips');
+                setTrips(response.data);
+            } catch (err) {
+                console.error('Failed to fetch trips:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const handleDelete = (id: number) => {
+        fetchTrips();
+    }, []);
+
+    const handleDelete = async (id: string) => {
         if (confirm('Are you sure you want to delete this trip?')) {
-            setTrips(trips.filter(t => t.id !== id));
+            try {
+                await api.delete(`/trips/${id}`);
+                setTrips(trips.filter(t => t._id !== id));
+            } catch (err) {
+                console.error('Failed to delete trip:', err);
+                alert('Failed to delete trip');
+            }
         }
     };
 
@@ -89,14 +61,12 @@ const MyTripsPage = () => {
     const prevMonth = () => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
 
     const getTripsForDate = (day: number) => {
-        // Simplified check: Does the trip string contain the current Mon + Day?
-        // Real logic would parse dates. For demo, we just return trips randomly or based on hardcoded dates match
-        // Let's implement a very basic text match for the demo since dates are strings "Nov 10"
-        const monthName = currentMonth.toLocaleString('default', { month: 'short' });
-        const dateStr = `${monthName} ${day < 10 ? '0' + day : day}`;
-
-        // This is a rough approximation for visualization
-        return trips.filter(t => t.dates.includes(dateStr) || (t.status === 'Ongoing' && day === 5));
+        return trips.filter(t => {
+            const startDate = new Date(t.startDate);
+            const endDate = new Date(t.endDate);
+            const checkDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+            return checkDate >= startDate && checkDate <= endDate;
+        });
     };
 
     // Grouping trips
@@ -110,54 +80,51 @@ const MyTripsPage = () => {
                 <h2 className="text-xl font-bold text-text-dark mb-6 px-1 border-l-4 border-primary pl-3">{title}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {tripsList.map((trip) => (
-                        <Card key={trip.id} className="group p-4 hover:shadow-medium transition-all duration-300">
+                        <Card key={trip._id} className="group p-4 hover:shadow-medium transition-all duration-300">
                             <div className="relative h-48 mb-4 overflow-hidden rounded-[20px]">
                                 <ImageWithFallback
-                                    src={trip.image}
+                                    src={trip.coverPhoto || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=800"}
                                     alt={trip.name}
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
                                 <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-primary shadow-sm">
-                                    {trip.cities} {trip.cities === 1 ? 'City' : 'Cities'}
+                                    {trip.stops?.length || 0} {trip.stops?.length === 1 ? 'City' : 'Cities'}
                                 </div>
-                                <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold shadow-sm backdrop-blur-sm ${trip.status === 'Upcoming' ? 'bg-primary/90 text-white' :
-                                    trip.status === 'Ongoing' ? 'bg-green-500/90 text-white' :
-                                        trip.status === 'Completed' ? 'bg-gray-500/90 text-white' :
-                                            'bg-blue-500/90 text-white'
+                                <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold shadow-sm backdrop-blur-sm ${trip.status === 'Completed' ? 'bg-gray-500/90 text-white' : 'bg-primary/90 text-white'
                                     }`}>
-                                    {trip.status}
+                                    {trip.status || 'Upcoming'}
                                 </div>
                             </div>
 
                             <div className="space-y-3">
                                 <div>
-                                    <h3 className="text-xl font-bold text-text-dark group-hover:text-primary transition-colors">
+                                    <h3 className="text-xl font-bold text-text-dark group-hover:text-primary transition-colors line-clamp-1">
                                         {trip.name}
                                     </h3>
                                     <div className="flex items-center text-text-light text-sm mt-1">
                                         <MapPin size={14} className="mr-1 text-primary" />
-                                        {trip.location}
+                                        {trip.stops?.[0]?.cityId?.name || "Multiple Locations"}
                                     </div>
                                 </div>
 
                                 <div className="flex items-center text-text-light text-sm bg-sand/10 py-2 px-3 rounded-[12px]">
                                     <CalendarIcon size={14} className="mr-2 text-primary" />
-                                    {trip.dates}
+                                    {new Date(trip.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(trip.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                 </div>
 
                                 <div className="pt-4 mt-2 border-t border-sand flex items-center justify-between gap-2">
-                                    <Link to={`/itinerary/${trip.id}`} className="flex-1">
+                                    <Link to={`/itinerary/${trip._id}`} className="flex-1">
                                         <Button variant="secondary" className="w-full h-10 px-0 flex items-center justify-center gap-2 text-sm !rounded-[14px]">
                                             <Eye size={16} /> View
                                         </Button>
                                     </Link>
-                                    <Link to={`/edit-trip/${trip.id}`}>
+                                    <Link to={`/edit-trip/${trip._id}`}>
                                         <button className="h-10 w-10 flex items-center justify-center rounded-[14px] bg-sand/20 text-text-dark hover:bg-primary/10 hover:text-primary transition-colors">
                                             <Edit2 size={18} />
                                         </button>
                                     </Link>
                                     <button
-                                        onClick={() => handleDelete(trip.id)}
+                                        onClick={() => handleDelete(trip._id)}
                                         className="h-10 w-10 flex items-center justify-center rounded-[14px] bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
                                     >
                                         <Trash2 size={18} />
@@ -184,7 +151,7 @@ const MyTripsPage = () => {
 
     return (
         <div className="min-h-screen bg-cream">
-            <Navbar user={user} />
+            <Navbar />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 {/* Header Section */}
@@ -291,7 +258,7 @@ const MyTripsPage = () => {
                                         <div className="mt-2 space-y-1">
                                             {daysTrips.map(trip => (
                                                 <div
-                                                    key={trip.id}
+                                                    key={trip._id}
                                                     className={`text-[10px] p-1.5 rounded truncate font-medium cursor-pointer ${trip.status === 'Ongoing' ? 'bg-primary text-white' :
                                                         trip.status === 'Upcoming' ? 'bg-accent/20 text-accent-dark' : 'bg-gray-100 text-gray-600'
                                                         }`}

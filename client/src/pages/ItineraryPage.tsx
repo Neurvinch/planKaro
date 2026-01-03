@@ -12,84 +12,62 @@ import CitySearchModal from '../components/CitySearchModal';
 import ActivitySelectionModal from '../components/ActivitySelectionModal';
 import TrainSearchModal from '../components/TrainSearchModal';
 import TripTimeline from '../components/TripTimeline';
+import { useParams } from 'react-router-dom';
+import api from '../services/api';
 
 const ItineraryPage = () => {
+    const { id: tripId } = useParams();
+    const [loading, setLoading] = useState(true);
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
     const [isTrainModalOpen, setIsTrainModalOpen] = useState(false);
     const [selectedCityForActivity, setSelectedCityForActivity] = useState<string | null>(null);
     const [selectedDayForActivity, setSelectedDayForActivity] = useState<number | null>(null);
-    // Mock user
-    const user = {
-        name: "Alex",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
-    };
 
-    // Mock Itinerary Data
-    const [trip, setTrip] = useState({
-        id: 1,
-        name: "Golden Triangle Tour",
-        dates: "Nov 15 - Nov 20, 2024",
-        status: "Confirmed",
-        coverImage: "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&q=80&w=1200",
-        cities: [
-            {
-                id: 'c1',
-                name: "Delhi",
-                dates: "Nov 15 - Nov 16",
-                days: [
-                    {
-                        day: 1,
-                        date: "Nov 15",
-                        activities: [
-                            { id: 'a1', time: "10:00 AM", title: "Arrival at IGI Airport", type: "Transport" },
-                            { id: 'a2', time: "01:00 PM", title: "Check-in at The Imperial", type: "Stay" },
-                            { id: 'a3', time: "06:00 PM", title: "Dinner at Karim's, Old Delhi", type: "Food" }
+    const [trip, setTrip] = useState<any>(null);
+
+    React.useEffect(() => {
+        const fetchTrip = async () => {
+            try {
+                setLoading(true);
+                const response = await api.get(`/trips/${tripId}`);
+                const data = response.data;
+
+                // Transform backend 'stops' to frontend 'cities' structure if needed
+                // Backend 'stops' has cityId and activities.
+                // For now, let's keep it simple and see if we can adapt.
+                const transformedTrip = {
+                    ...data,
+                    coverImage: data.coverPhoto || "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&q=80&w=1200",
+                    dates: `${new Date(data.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(data.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
+                    cities: data.stops.map((stop: any, idx: number) => ({
+                        id: stop._id || `c${idx}`,
+                        name: stop.cityId?.name || "Unknown City",
+                        dates: "TBD",
+                        days: [
+                            {
+                                day: idx + 1,
+                                date: "Day " + (idx + 1),
+                                activities: stop.activities.map((act: any, aIdx: number) => ({
+                                    id: act._id || `a${aIdx}`,
+                                    time: act.time || "10:00 AM",
+                                    title: act.activityId?.name || act.customName || "Activity",
+                                    type: act.activityId?.category || "Culture"
+                                }))
+                            }
                         ]
-                    },
-                    {
-                        day: 2,
-                        date: "Nov 16",
-                        activities: [
-                            { id: 'a4', time: "09:00 AM", title: "Visit Red Fort", type: "Culture" },
-                            { id: 'a5', time: "02:00 PM", title: "Drive to Agra", type: "Transport" }
-                        ]
-                    }
-                ]
-            },
-            {
-                id: 'c2',
-                name: "Agra",
-                dates: "Nov 17 - Nov 18",
-                days: [
-                    {
-                        day: 3,
-                        date: "Nov 17",
-                        activities: [
-                            { id: 'a6', time: "06:00 AM", title: "Sunrise at Taj Mahal", type: "Culture" },
-                            { id: 'a7', time: "11:00 AM", title: "Agra Fort Tour", type: "Culture" }
-                        ]
-                    }
-                ]
-            },
-            {
-                id: 'c3',
-                name: "Jaipur",
-                dates: "Nov 19 - Nov 20",
-                days: [
-                    {
-                        day: 5,
-                        date: "Nov 19",
-                        activities: [
-                            { id: 'a8', time: "10:00 AM", title: "Drive to Jaipur", type: "Transport" },
-                            { id: 'a9', time: "04:00 PM", title: "Hawa Mahal Photo Stop", type: "Culture" },
-                            { id: 'a10', time: "07:00 PM", title: "Chokhi Dhani Dinner", type: "Food" }
-                        ]
-                    }
-                ]
+                    }))
+                };
+                setTrip(transformedTrip);
+            } catch (err) {
+                console.error('Failed to fetch trip:', err);
+            } finally {
+                setLoading(false);
             }
-        ]
-    });
+        };
+
+        if (tripId) fetchTrip();
+    }, [tripId]);
 
     const handleDelete = (activityId) => {
         setTrip(prevTrip => {
@@ -187,9 +165,25 @@ const ItineraryPage = () => {
         setIsActivityModalOpen(true);
     };
 
+    if (loading) return (
+        <div className="min-h-screen bg-cream flex items-center justify-center">
+            <div className="animate-pulse flex flex-col items-center">
+                <div className="w-16 h-16 bg-primary/20 rounded-full mb-4"></div>
+                <div className="h-4 w-48 bg-sand/40 rounded"></div>
+            </div>
+        </div>
+    );
+
+    if (!trip) return (
+        <div className="min-h-screen bg-cream flex flex-col items-center justify-center">
+            <h2 className="text-2xl font-bold text-text-dark">Trip not found</h2>
+            <Link to="/dashboard" className="text-primary mt-4 hover:underline">Back to Dashboard</Link>
+        </div>
+    );
+
     return (
         <div className="min-h-screen bg-cream">
-            <Navbar user={user} />
+            <Navbar />
 
             {/* Trip Header Image (Banner) */}
             <div className="relative h-64 md:h-80 w-full overflow-hidden">

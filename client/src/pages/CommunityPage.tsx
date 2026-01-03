@@ -6,11 +6,6 @@ import Button from '../components/Button';
 import ImageWithFallback from '../components/ImageWithFallback';
 
 const CommunityPage = () => {
-    const user = {
-        name: "Alex",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
-    };
-
     const communityPosts = [
         {
             id: 1,
@@ -68,7 +63,7 @@ const CommunityPage = () => {
 
     return (
         <div className="min-h-screen bg-cream">
-            <Navbar user={user} />
+            <Navbar />
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <div className="text-center mb-10">

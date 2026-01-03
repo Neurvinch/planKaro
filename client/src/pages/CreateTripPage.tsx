@@ -55,21 +55,12 @@ const CreateTripPage = () => {
         setIsSubmitting(true);
 
         try {
-            // Create FormData for file upload
-            const tripData = new FormData();
-            tripData.append('name', formData.tripName);
-            tripData.append('startDate', formData.startDate);
-            tripData.append('endDate', formData.endDate);
-            tripData.append('description', formData.description);
-
-            if (formData.coverPhoto) {
-                tripData.append('coverPhoto', formData.coverPhoto);
-            }
-
-            const response = await api.post('/trips', tripData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+            const response = await api.post('/trips', {
+                name: formData.tripName,
+                startDate: formData.startDate,
+                endDate: formData.endDate,
+                description: formData.description,
+                coverPhoto: previewUrl // Sending the base64 preview or null for now
             });
 
             console.log('Trip created:', response.data);

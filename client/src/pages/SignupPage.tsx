@@ -4,6 +4,8 @@ import { Eye, EyeOff, Check, X } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Navbar from '../components/Navbar';
+import logo from '../assets/logo.jpg';
+import api from '../services/api';
 
 const SignupPage = () => {
     const navigate = useNavigate();
@@ -65,14 +67,15 @@ const SignupPage = () => {
         setError('');
 
         try {
-            const response = await api.post('/auth/register', {
+            const response = await api.post('/auth/signup', {
                 name: formData.fullName,
                 email: formData.email,
                 password: formData.password
             });
 
-            // Store token
+            // Store token and user
             localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
 
             // Navigate to dashboard
             navigate('/dashboard');

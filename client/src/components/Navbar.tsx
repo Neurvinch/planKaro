@@ -13,8 +13,34 @@ interface NavbarProps {
     user?: User;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ user }) => {
+const Navbar: React.FC<NavbarProps> = ({ user: userProp }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [user, setUser] = useState<User | undefined>(userProp);
+
+    React.useEffect(() => {
+        if (!userProp) {
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+                try {
+                    const parsed = JSON.parse(savedUser);
+                    setUser({
+                        name: parsed.name,
+                        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${parsed.name}`
+                    });
+                } catch (e) {
+                    console.error('Failed to parse user:', e);
+                }
+            }
+        } else {
+            setUser(userProp);
+        }
+    }, [userProp]);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    };
 
     return (
         <nav className="bg-cream border-b border-sand sticky top-0 z-40 backdrop-blur-sm bg-cream/95">
@@ -140,12 +166,12 @@ const Navbar: React.FC<NavbarProps> = ({ user }) => {
                         {user && (
                             <>
                                 <div className="border-t border-sand my-2" />
-                                <Link
-                                    to="/logout"
-                                    className="block px-3 py-2 rounded-[16px] text-accent hover:bg-red-50 font-medium"
+                                <button
+                                    onClick={handleLogout}
+                                    className="block w-full text-left px-3 py-2 rounded-[16px] text-accent hover:bg-red-50 font-medium"
                                 >
                                     Log Out
-                                </Link>
+                                </button>
                             </>
                         )}
                     </div>
