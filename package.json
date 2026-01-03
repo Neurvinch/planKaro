@@ -1,0 +1,9 @@
+{
+    "name": "plankaro-root",
+    "private": true,
+    "scripts": {
+        "start": "bun run --cwd server start",
+        "dev": "bun run --cwd server dev",
+        "build": "bun install --cwd server && bun install --cwd client && bun run --cwd client build"
+    }
+}
