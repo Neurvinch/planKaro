@@ -14,7 +14,7 @@
   --color-sky: #87CEEB;
   --color-sunset: #FF9B7A;
   --color-earth: #D4A574;
-  
+
   /* Neutral colors */
   --color-cream: #FFF8F0;
   --color-sand: #F5E6D3;
@@ -24,13 +24,13 @@
   /* Fonts */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: 'Poppins', sans-serif;
-  
+
   /* Border radius - very rounded like the reference */
   --radius-sm: 12px;
   --radius-md: 20px;
   --radius-lg: 28px;
   --radius-xl: 36px;
-  
+
   /* Shadows - soft and subtle */
   --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
   --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
@@ -41,8 +41,13 @@
   body {
     @apply bg-cream text-text-dark font-sans antialiased;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display;
   }
 }
@@ -51,20 +56,50 @@
   .gradient-warm {
     background: linear-gradient(135deg, #F4A460 0%, #E8956C 50%, #C85A54 100%);
   }
-  
+
   .gradient-sky {
     background: linear-gradient(180deg, #87CEEB 0%, #6B9BD1 100%);
   }
-  
+
   .gradient-sunset {
     background: linear-gradient(135deg, #FF9B7A 0%, #E8956C 50%, #D67D5A 100%);
   }
-  
+
   .card-zen {
     @apply rounded-[28px] shadow-soft bg-white;
   }
-  
+
   .btn-zen {
     @apply rounded-[20px] px-6 py-3 font-medium transition-all duration-300 shadow-soft hover:shadow-medium;
+  }
+
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #F5E6D3;
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #E8956C;
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #D67D5A;
+  }
+
+  /* Hide scrollbar */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

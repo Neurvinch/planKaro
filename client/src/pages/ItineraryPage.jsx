@@ -179,10 +179,12 @@ const ItineraryPage = () => {
                                         <p className="text-[10px] uppercase tracking-wider text-text-light mb-1">Duration</p>
                                         <p className="text-lg font-bold text-text-dark">14 Days</p>
                                     </div>
-                                    <div className="bg-sand/10 p-3 rounded-2xl">
-                                        <p className="text-[10px] uppercase tracking-wider text-text-light mb-1">Budget</p>
-                                        <p className="text-lg font-bold text-text-dark">$3,450</p>
-                                    </div>
+                                    <Link to={`/budget/${trip.id}`}>
+                                        <div className="bg-primary/10 p-3 rounded-2xl hover:bg-primary/20 transition-colors cursor-pointer group">
+                                            <p className="text-[10px] uppercase tracking-wider text-primary mb-1">Budget</p>
+                                            <p className="text-lg font-bold text-text-dark group-hover:text-primary transition-colors">$3,450</p>
+                                        </div>
+                                    </Link>
                                 </div>
                             </div>
                         </Card>
