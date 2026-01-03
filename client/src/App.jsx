@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import CreateTripPage from './pages/CreateTripPage';
 import DashboardPage from './pages/DashboardPage';
 import MyTripsPage from './pages/MyTripsPage';
+import ItineraryPage from './pages/ItineraryPage';
 
 // Placeholder Home Page
 const HomePage = () => (
@@ -41,6 +42,8 @@ function App() {
         <Route path="/create-trip" element={<CreateTripPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/my-trips" element={<MyTripsPage />} />
+        <Route path="/itinerary/:id" element={<ItineraryPage />} />
+        <Route path="/itinerary" element={<ItineraryPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

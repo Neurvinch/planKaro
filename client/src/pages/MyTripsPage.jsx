@@ -104,8 +104,8 @@ const MyTripsPage = () => {
                                         {trip.cities} {trip.cities === 1 ? 'City' : 'Cities'}
                                     </div>
                                     <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold shadow-sm backdrop-blur-sm ${trip.status === 'Upcoming' ? 'bg-primary/90 text-white' :
-                                            trip.status === 'Planning' ? 'bg-blue-500/90 text-white' :
-                                                'bg-slate-500/90 text-white'
+                                        trip.status === 'Planning' ? 'bg-blue-500/90 text-white' :
+                                            'bg-slate-500/90 text-white'
                                         }`}>
                                         {trip.status}
                                     </div>
@@ -130,7 +130,7 @@ const MyTripsPage = () => {
 
                                     {/* Action Buttons */}
                                     <div className="pt-4 mt-2 border-t border-sand flex items-center justify-between gap-2">
-                                        <Link to={`/trip/${trip.id}`} className="flex-1">
+                                        <Link to={`/itinerary/${trip.id}`} className="flex-1">
                                             <Button variant="secondary" className="w-full h-10 px-0 flex items-center justify-center gap-2 text-sm !rounded-[14px]">
                                                 <Eye size={16} /> View
                                             </Button>
