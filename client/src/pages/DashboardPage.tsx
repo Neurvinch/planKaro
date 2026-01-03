@@ -38,19 +38,19 @@ const DashboardPage = () => {
             trips = [
                 {
                     id: 1,
-                    name: "Summer in Japan",
-                    dates: "Jul 10 - Jul 24",
+                    name: "Royal Rajasthan Tour",
+                    dates: "Nov 10 - Nov 20",
                     cities: 3,
-                    image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800",
+                    image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&q=80&w=800",
                     status: "Upcoming"
                 },
                 {
                     id: 2,
-                    name: "Weekend in Paris",
-                    dates: "Sep 05 - Sep 08",
+                    name: "Weekend in Goa",
+                    dates: "Dec 05 - Dec 08",
                     cities: 1,
-                    image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=800",
-                    status: "Upcoming" // Changed from Planning to Upcoming for demo
+                    image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&q=80&w=800",
+                    status: "Upcoming"
                 }
             ];
             // Sync default to local storage so other pages see it
@@ -68,10 +68,10 @@ const DashboardPage = () => {
 
     // Mock Popular Destinations
     const popularDestinations = [
-        { id: 1, name: "Bali, Indonesia", image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=600" },
-        { id: 2, name: "Santorini, Greece", image: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&q=80&w=600" },
-        { id: 3, name: "Kyoto, Japan", image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=600" },
-        { id: 4, name: "New York, USA", image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&q=80&w=600" },
+        { id: 1, name: "Jaipur, Rajasthan", image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&q=80&w=600" },
+        { id: 2, name: "Munnar, Kerala", image: "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?auto=format&fit=crop&q=80&w=600" },
+        { id: 3, name: "Varanasi, UP", image: "https://images.unsplash.com/photo-1561361513-2d000a45f0dc?auto=format&fit=crop&q=80&w=600" },
+        { id: 4, name: "Leh, Ladakh", image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&q=80&w=600" },
     ];
 
 
