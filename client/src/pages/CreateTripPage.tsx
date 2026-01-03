@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Calendar, Image as ImageIcon, Upload, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import api from '../services/api';
 
 const CreateTripPage = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         tripName: '',
         startDate: '',
@@ -13,6 +16,7 @@ const CreateTripPage = () => {
         coverPhoto: null,
     });
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Mock User for Navbar
     const user = {
@@ -42,10 +46,42 @@ const CreateTripPage = () => {
         setPreviewUrl(null);
     };
 
-    const handleSubmit = (e) => {
+    const handleCancel = () => {
+        navigate('/dashboard');
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Trip Data:', formData);
-        // Add logic to save trip
+        setIsSubmitting(true);
+
+        try {
+            // Create FormData for file upload
+            const tripData = new FormData();
+            tripData.append('name', formData.tripName);
+            tripData.append('startDate', formData.startDate);
+            tripData.append('endDate', formData.endDate);
+            tripData.append('description', formData.description);
+
+            if (formData.coverPhoto) {
+                tripData.append('coverPhoto', formData.coverPhoto);
+            }
+
+            const response = await api.post('/trips', tripData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            console.log('Trip created:', response.data);
+
+            // Navigate to my-trips after successful save
+            navigate('/my-trips');
+        } catch (error: any) {
+            console.error('Failed to create trip:', error);
+            alert(error.response?.data?.message || 'Failed to create trip. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -192,8 +228,20 @@ const CreateTripPage = () => {
                         </div>
 
                         <div className="pt-6 border-t border-sand flex justify-end gap-3">
-                            <Button variant="ghost" type="button" className="hover:bg-sand/30">Cancel</Button>
-                            <Button type="submit">Save Trip</Button>
+                            <Button
+                                variant="ghost"
+                                type="button"
+                                className="hover:bg-sand/30"
+                                onClick={handleCancel}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Saving...' : 'Save Trip'}
+                            </Button>
                         </div>
 
                     </form>

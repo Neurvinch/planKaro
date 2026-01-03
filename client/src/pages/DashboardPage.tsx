@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import { Link } from 'react-router-dom';
+import api from '../services/api';
 
 interface Trip {
     id: number;
@@ -27,43 +28,44 @@ const DashboardPage = () => {
     const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([]);
 
     useEffect(() => {
-        // Load trips from localStorage or use defaults
-        const savedTrips = localStorage.getItem('planKaro_trips');
-        let trips = [];
+        const fetchTrips = async () => {
+            try {
+                const response = await api.get('/trips');
+                const trips = response.data;
 
-        if (savedTrips) {
-            trips = JSON.parse(savedTrips);
-        } else {
-            // Default mock trips if storage is empty
-            trips = [
-                {
-                    id: 1,
-                    name: "Summer in Japan",
-                    dates: "Jul 10 - Jul 24",
-                    cities: 3,
-                    image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800",
-                    status: "Upcoming"
-                },
-                {
-                    id: 2,
-                    name: "Weekend in Paris",
-                    dates: "Sep 05 - Sep 08",
-                    cities: 1,
-                    image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=800",
-                    status: "Upcoming" // Changed from Planning to Upcoming for demo
-                }
-            ];
-            // Sync default to local storage so other pages see it
-            localStorage.setItem('planKaro_trips', JSON.stringify(trips));
-        }
+                // Filter for upcoming trips and take first 3
+                const upcoming = trips
+                    .filter((t: any) => t.status === 'Upcoming' || t.status === 'Planning')
+                    .slice(0, 3)
+                    .map((t: any) => ({
+                        id: t._id,
+                        name: t.name,
+                        dates: `${new Date(t.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(t.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+                        cities: t.cities || 1,
+                        image: t.coverPhoto || 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800',
+                        status: t.status || 'Upcoming'
+                    }));
 
-        // Filter for upcoming trips and take first 3
-        const upcoming = trips.filter(t => t.status === 'Upcoming' || t.status === 'Planning').slice(0, 3);
-        setUpcomingTrips(upcoming);
+                setUpcomingTrips(upcoming);
+            } catch (error) {
+                console.error('Failed to fetch trips:', error);
+                // Fallback to mock data if API fails
+                setUpcomingTrips([
+                    {
+                        id: 1,
+                        name: "Summer in Japan",
+                        dates: "Jul 10 - Jul 24",
+                        cities: 3,
+                        image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800",
+                        status: "Upcoming"
+                    }
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        // Simulate loading
-        const timer = setTimeout(() => setLoading(false), 1000);
-        return () => clearTimeout(timer);
+        fetchTrips();
     }, []);
 
     // Mock Popular Destinations

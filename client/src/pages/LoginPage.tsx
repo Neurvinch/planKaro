@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Globe, Eye, EyeOff } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Navbar from '../components/Navbar';
+import api from '../services/api';
 
 const LoginPage = () => {
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -19,14 +22,32 @@ const LoginPage = () => {
         if (error) setError('');
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.email || !formData.password) {
             setError('Please fill in all fields');
             return;
         }
-        // Handle login logic here
-        console.log('Login submitted:', formData);
+
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const response = await api.post('/auth/login', {
+                email: formData.email,
+                password: formData.password
+            });
+
+            // Store token
+            localStorage.setItem('token', response.data.token);
+
+            // Navigate to dashboard
+            navigate('/dashboard');
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Login failed. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const isFormValid = formData.email && formData.password;
@@ -78,7 +99,7 @@ const LoginPage = () => {
                             {/* Password */}
                             <div>
                                 <div className="flex items-center justify-between mb-1">
-                                    <label htmlFor="password" class="block text-sm font-medium text-text-dark">
+                                    <label htmlFor="password" className="block text-sm font-medium text-text-dark">
                                         Password
                                     </label>
                                     <Link to="#" className="text-sm font-medium text-primary hover:text-primary-dark transition-colors">
@@ -109,10 +130,10 @@ const LoginPage = () => {
                             <Button
                                 type="submit"
                                 fullWidth
-                                disabled={!isFormValid}
+                                disabled={!isFormValid || isLoading}
                                 className="py-2.5 rounded-[20px]"
                             >
-                                Log In
+                                {isLoading ? 'Logging in...' : 'Log In'}
                             </Button>
 
                             <div className="text-center mt-6">

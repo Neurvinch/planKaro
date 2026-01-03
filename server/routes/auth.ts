@@ -6,9 +6,8 @@ import User from '../models/User.ts';
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_key_change_me';
 
-// @route   POST /api/auth/signup
-// @desc    Register a new user
-router.post('/signup', async (req, res) => {
+// Registration handler function
+const registerUser = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
@@ -46,7 +45,15 @@ router.post('/signup', async (req, res) => {
         console.error(err);
         res.status(500).send('Server error');
     }
-});
+};
+
+// @route   POST /api/auth/signup
+// @desc    Register a new user
+router.post('/signup', registerUser);
+
+// @route   POST /api/auth/register
+// @desc    Register a new user (alias)
+router.post('/register', registerUser);
 
 // @route   POST /api/auth/login
 // @desc    Authenticate user & get token

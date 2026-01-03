@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Check, X } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Navbar from '../components/Navbar';
+import api from '../services/api';
 
 const SignupPage = () => {
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         fullName: '',
@@ -15,6 +17,8 @@ const SignupPage = () => {
     });
 
     const [passwordStrength, setPasswordStrength] = useState(0);
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const calculateStrength = (pass) => {
         let strength = 0;
@@ -33,6 +37,7 @@ const SignupPage = () => {
         if (name === 'password') {
             setPasswordStrength(calculateStrength(value));
         }
+        if (error) setError('');
     };
 
     const getStrengthColor = () => {
@@ -49,10 +54,34 @@ const SignupPage = () => {
         return 'Strong';
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle signup logic here
-        console.log('Form submitted:', formData);
+
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
+
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const response = await api.post('/auth/register', {
+                name: formData.fullName,
+                email: formData.email,
+                password: formData.password
+            });
+
+            // Store token
+            localStorage.setItem('token', response.data.token);
+
+            // Navigate to dashboard
+            navigate('/dashboard');
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Registration failed. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -72,6 +101,13 @@ const SignupPage = () => {
 
                     <Card>
                         <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Error Message */}
+                            {error && (
+                                <div className="p-3 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600 font-medium">
+                                    {error}
+                                </div>
+                            )}
+
                             {/* Full Name */}
                             <div>
                                 <label htmlFor="fullName" className="block text-sm font-medium text-text-dark mb-1">
@@ -192,8 +228,8 @@ const SignupPage = () => {
                                 )}
                             </div>
 
-                            <Button type="submit" fullWidth className="mt-2">
-                                Create Account
+                            <Button type="submit" fullWidth className="mt-2" disabled={isLoading}>
+                                {isLoading ? 'Creating Account...' : 'Create Account'}
                             </Button>
 
                             <div className="text-center mt-4">
