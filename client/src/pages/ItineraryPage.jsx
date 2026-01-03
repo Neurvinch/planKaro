@@ -8,8 +8,10 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import CitySearchModal from '../components/CitySearchModal';
 
 const ItineraryPage = () => {
+    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     // Mock user
     const user = {
         name: "Alex",
@@ -65,6 +67,17 @@ const ItineraryPage = () => {
             }
         ]
     });
+
+    const handleDelete = (id) => {
+        // Logic to delete activity
+    };
+
+    const handleAddCity = (city) => {
+        console.log('Adding city:', city);
+        // Logic to add city to itinerary
+        setIsSearchModalOpen(false);
+        // Optional: show toast or update state
+    };
 
     return (
         <div className="min-h-screen bg-cream">
@@ -135,7 +148,12 @@ const ItineraryPage = () => {
                                 ))}
                             </div>
 
-                            <Button variant="outline" fullWidth className="mt-6 flex items-center justify-center gap-2 hover:bg-sand/20">
+                            <Button
+                                variant="outline"
+                                fullWidth
+                                className="mt-6 flex items-center justify-center gap-2 hover:bg-sand/20"
+                                onClick={() => setIsSearchModalOpen(true)}
+                            >
                                 <Plus size={18} /> Add City
                             </Button>
 
@@ -227,7 +245,12 @@ const ItineraryPage = () => {
 
                         {/* End of Timeline Action */}
                         <div className="flex justify-center pt-8">
-                            <Button variant="primary" size="lg" className="px-8 flex items-center gap-2 shadow-medium">
+                            <Button
+                                variant="primary"
+                                size="lg"
+                                className="px-8 flex items-center gap-2 shadow-medium"
+                                onClick={() => setIsSearchModalOpen(true)}
+                            >
                                 <Plus size={20} /> Add Next Destination
                             </Button>
                         </div>
@@ -235,6 +258,13 @@ const ItineraryPage = () => {
 
                 </div>
             </div>
+
+            {/* Modals */}
+            <CitySearchModal
+                isOpen={isSearchModalOpen}
+                onClose={() => setIsSearchModalOpen(false)}
+                onAddCity={handleAddCity}
+            />
         </div>
     );
 };

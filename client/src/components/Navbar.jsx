@@ -24,6 +24,12 @@ const Navbar = ({ user }) => {
 
                     {/* Desktop Menu */}
                     <div className="hidden md:flex items-center gap-6">
+                        <Link to="/dashboard" className="text-text-light hover:text-primary font-medium transition-colors">
+                            Dashboard
+                        </Link>
+                        <Link to="/my-trips" className="text-text-light hover:text-primary font-medium transition-colors">
+                            My Trips
+                        </Link>
                         <Link to="#" className="text-text-light hover:text-primary font-medium transition-colors">
                             Destinations
                         </Link>
@@ -86,6 +92,18 @@ const Navbar = ({ user }) => {
                                 </div>
                             </div>
                         )}
+                        <Link
+                            to="/dashboard"
+                            className="block px-3 py-2 rounded-[16px] text-text-light hover:bg-sand hover:text-primary font-medium"
+                        >
+                            Dashboard
+                        </Link>
+                        <Link
+                            to="/my-trips"
+                            className="block px-3 py-2 rounded-[16px] text-text-light hover:bg-sand hover:text-primary font-medium"
+                        >
+                            My Trips
+                        </Link>
                         <Link
                             to="#"
                             className="block px-3 py-2 rounded-[16px] text-text-light hover:bg-sand hover:text-primary font-medium"

@@ -93,7 +93,7 @@ const DashboardPage = () => {
                 <section className="mb-12">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-display font-semibold text-text-dark">Upcoming Trips</h2>
-                        <Link to="/trips" className="text-primary font-medium hover:text-primary-dark transition-colors flex items-center gap-1">
+                        <Link to="/my-trips" className="text-primary font-medium hover:text-primary-dark transition-colors flex items-center gap-1">
                             View all <ArrowRight size={16} />
                         </Link>
                     </div>
@@ -107,25 +107,27 @@ const DashboardPage = () => {
                             </>
                         ) : (
                             upcomingTrips.map((trip) => (
-                                <Card key={trip.id} className="p-4 hover:shadow-medium transition-shadow cursor-pointer group">
-                                    <div className="relative h-48 mb-4 overflow-hidden rounded-[20px]">
-                                        <img
-                                            src={trip.image}
-                                            alt={trip.name}
-                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                        />
-                                        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-primary">
-                                            {trip.cities} Cities
+                                <Link key={trip.id} to={`/itinerary/${trip.id}`} className="block">
+                                    <Card className="p-4 hover:shadow-medium transition-shadow cursor-pointer group h-full">
+                                        <div className="relative h-48 mb-4 overflow-hidden rounded-[20px]">
+                                            <img
+                                                src={trip.image}
+                                                alt={trip.name}
+                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            />
+                                            <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-primary">
+                                                {trip.cities} Cities
+                                            </div>
                                         </div>
-                                    </div>
-                                    <h3 className="text-xl font-bold text-text-dark mb-2 group-hover:text-primary transition-colors">
-                                        {trip.name}
-                                    </h3>
-                                    <div className="flex items-center text-text-light text-sm">
-                                        <Calendar size={16} className="mr-2 text-primary" />
-                                        {trip.dates}
-                                    </div>
-                                </Card>
+                                        <h3 className="text-xl font-bold text-text-dark mb-2 group-hover:text-primary transition-colors">
+                                            {trip.name}
+                                        </h3>
+                                        <div className="flex items-center text-text-light text-sm">
+                                            <Calendar size={16} className="mr-2 text-primary" />
+                                            {trip.dates}
+                                        </div>
+                                    </Card>
+                                </Link>
                             ))
                         )}
 
