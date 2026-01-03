@@ -17,38 +17,38 @@ const MyTripsPage = () => {
     const initialMockTrips = [
         {
             id: 1,
-            name: "Summer in Japan",
-            dates: "Jul 10 - Jul 24, 2024",
+            name: "Royal Rajasthan Tour",
+            dates: "Nov 10 - Nov 16, 2024",
             cities: 3,
-            location: "Tokyo, Japan",
-            image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800",
+            location: "Jaipur, Udaipur, Jodhpur",
+            image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&q=80&w=800",
             status: "Upcoming"
         },
         {
             id: 2,
-            name: "Weekend in Paris",
-            dates: "Sep 05 - Sep 08, 2024",
+            name: "Weekend in Goa",
+            dates: "Dec 05 - Dec 08, 2024",
             cities: 1,
-            location: "Paris, France",
-            image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=800",
+            location: "North Goa, India",
+            image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&q=80&w=800",
             status: "Planning"
         },
         {
             id: 3,
-            name: "Bali Retreat",
-            dates: "Oct 15 - Oct 22, 2024",
-            cities: 2,
-            location: "Bali, Indonesia",
-            image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=800",
+            name: "Rishikesh Yoga Retreat",
+            dates: "Jan 15 - Jan 22, 2025",
+            cities: 1,
+            location: "Rishikesh, Uttarakhand",
+            image: "https://images.unsplash.com/photo-1518002171953-a080ee806dab?auto=format&fit=crop&q=80&w=800",
             status: "Draft"
         },
         {
             id: 4,
-            name: "Swiss Alps Adventure",
-            dates: "Dec 10 - Dec 20, 2024",
+            name: "Ladakh Bike Trip",
+            dates: "Jun 10 - Jun 20, 2025",
             cities: 4,
-            location: "Zurich, Switzerland",
-            image: "https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&q=80&w=800",
+            location: "Leh, Ladakh",
+            image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&q=80&w=800",
             status: "Draft"
         }
     ];

@@ -26,46 +26,62 @@ const ItineraryPage = () => {
     // Mock Itinerary Data
     const [trip, setTrip] = useState({
         id: 1,
-        name: "Summer in Japan",
-        dates: "Jul 10 - Jul 24, 2024",
+        name: "Golden Triangle Tour",
+        dates: "Nov 15 - Nov 20, 2024",
         status: "Confirmed",
-        coverImage: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=1200",
+        coverImage: "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&q=80&w=1200",
         cities: [
             {
                 id: 'c1',
-                name: "Tokyo",
-                dates: "Jul 10 - Jul 14",
+                name: "Delhi",
+                dates: "Nov 15 - Nov 16",
                 days: [
                     {
                         day: 1,
-                        date: "July 10",
+                        date: "Nov 15",
                         activities: [
-                            { id: 'a1', time: "10:00 AM", title: "Arrival at Narita Airport", type: "Transport" },
-                            { id: 'a2', time: "02:00 PM", title: "Check-in at Tokyo Station Hotel", type: "Stay" },
-                            { id: 'a3', time: "06:00 PM", title: "Dinner at Shinjuku Golden Gai", type: "Food" }
+                            { id: 'a1', time: "10:00 AM", title: "Arrival at IGI Airport", type: "Transport" },
+                            { id: 'a2', time: "01:00 PM", title: "Check-in at The Imperial", type: "Stay" },
+                            { id: 'a3', time: "06:00 PM", title: "Dinner at Karim's, Old Delhi", type: "Food" }
                         ]
                     },
                     {
                         day: 2,
-                        date: "July 11",
+                        date: "Nov 16",
                         activities: [
-                            { id: 'a4', time: "09:00 AM", title: "TeamLab Borderless Digital Art Museum", type: "Culture" },
-                            { id: 'a5', time: "01:00 PM", title: "Lunch in Odaiba", type: "Food" }
+                            { id: 'a4', time: "09:00 AM", title: "Visit Red Fort", type: "Culture" },
+                            { id: 'a5', time: "02:00 PM", title: "Drive to Agra", type: "Transport" }
                         ]
                     }
                 ]
             },
             {
                 id: 'c2',
-                name: "Kyoto",
-                dates: "Jul 15 - Jul 18",
+                name: "Agra",
+                dates: "Nov 17 - Nov 18",
                 days: [
                     {
-                        day: 6,
-                        date: "July 15",
+                        day: 3,
+                        date: "Nov 17",
                         activities: [
-                            { id: 'a6', time: "11:00 AM", title: "Shinkansen to Kyoto", type: "Transport" },
-                            { id: 'a7', time: "03:00 PM", title: "Fushimi Inari-taisha Shrine", type: "Culture" }
+                            { id: 'a6', time: "06:00 AM", title: "Sunrise at Taj Mahal", type: "Culture" },
+                            { id: 'a7', time: "11:00 AM", title: "Agra Fort Tour", type: "Culture" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'c3',
+                name: "Jaipur",
+                dates: "Nov 19 - Nov 20",
+                days: [
+                    {
+                        day: 5,
+                        date: "Nov 19",
+                        activities: [
+                            { id: 'a8', time: "10:00 AM", title: "Drive to Jaipur", type: "Transport" },
+                            { id: 'a9', time: "04:00 PM", title: "Hawa Mahal Photo Stop", type: "Culture" },
+                            { id: 'a10', time: "07:00 PM", title: "Chokhi Dhani Dinner", type: "Food" }
                         ]
                     }
                 ]
@@ -221,7 +237,7 @@ const ItineraryPage = () => {
                                     <Link to={`/budget/${trip.id}`}>
                                         <div className="bg-primary/10 p-3 rounded-2xl hover:bg-primary/20 transition-colors cursor-pointer group">
                                             <p className="text-[10px] uppercase tracking-wider text-primary mb-1">Budget</p>
-                                            <p className="text-lg font-bold text-text-dark group-hover:text-primary transition-colors">$3,450</p>
+                                            <p className="text-lg font-bold text-text-dark group-hover:text-primary transition-colors">₹45,000</p>
                                         </div>
                                     </Link>
                                 </div>

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
     MapPin, Calendar, Users, DollarSign, Clock, Share2, Copy, Check,
-    Facebook, Twitter, Linkedin, Mail, Link2, Download, Heart
+    Facebook, Twitter, Linkedin, Mail, Link2, Download, Heart,
+    Plane, Hotel, Utensils, Camera, Sun, ShoppingBag
 } from 'lucide-react';
 import Button from '../components/Button';
 import Card from '../components/Card';
@@ -25,88 +26,104 @@ const PublicItineraryPage = () => {
     // Mock trip data
     const trip = {
         id: 1,
-        name: "Summer in Japan",
-        coverImage: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200&h=400&fit=crop",
-        description: "An unforgettable 14-day journey through the heart of Japan, exploring ancient temples, modern cities, and breathtaking natural landscapes.",
-        dates: "July 10 - July 24, 2024",
-        duration: "14 days",
+        name: "Goa Beach Vacation",
+        coverImage: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1200&h=400&fit=crop",
+        description: "A relaxing 4-day getaway to the sunny beaches of Goa, exploring Portuguese heritage, vibrant markets, and serene coastlines.",
+        dates: "Dec 05 - Dec 08, 2024",
+        duration: "4 days",
         travelers: 2,
-        budget: "$3,500",
+        budget: "₹35,000",
         author: {
-            name: "Alex Chen",
-            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
+            name: "Aryan Sharma",
+            avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aryan"
         },
-        cities: ["Tokyo", "Kyoto", "Osaka"],
+        cities: ["North Goa", "South Goa"],
         highlights: [
-            "Visit ancient temples in Kyoto",
-            "Experience Tokyo's vibrant nightlife",
-            "Taste authentic Japanese cuisine",
-            "Climb Mount Fuji"
+            "Sunset at Anjuna Beach",
+            "Explore Fort Aguada",
+            "Water sports at Calangute",
+            "Dinner at a Beach Shack"
         ],
         days: [
             {
                 day: 1,
-                date: "July 10",
-                city: "Tokyo",
+                date: "Dec 05",
+                city: "North Goa",
                 activities: [
                     {
                         id: 1,
-                        time: "10:00 AM",
-                        title: "Arrival at Narita Airport",
+                        time: "11:00 AM",
+                        title: "Arrival at Dabolim Airport",
                         type: "Transport",
                         icon: Plane,
                         color: "bg-purple-100 text-purple-600"
                     },
                     {
                         id: 2,
-                        time: "02:00 PM",
-                        title: "Check-in at Tokyo Station Hotel",
+                        time: "01:00 PM",
+                        title: "Check-in at Taj Fort Aguada",
                         type: "Stay",
                         icon: Hotel,
                         color: "bg-blue-100 text-blue-600"
                     },
                     {
                         id: 3,
-                        time: "06:00 PM",
-                        title: "Dinner at Shinjuku Golden Gai",
-                        type: "Food",
-                        icon: Utensils,
-                        color: "bg-green-100 text-green-600"
+                        time: "05:30 PM",
+                        title: "Sunset at Sinquerim Beach",
+                        type: "Adventure",
+                        icon: Sun,
+                        color: "bg-orange-100 text-orange-600"
                     }
                 ]
             },
             {
                 day: 2,
-                date: "July 11",
-                city: "Tokyo",
+                date: "Dec 06",
+                city: "North Goa",
                 activities: [
                     {
                         id: 4,
-                        time: "09:00 AM",
-                        title: "TeamLab Borderless Museum",
+                        time: "10:00 AM",
+                        title: "Visit Fort Aguada",
                         type: "Culture",
                         icon: Camera,
                         color: "bg-primary/10 text-primary"
                     },
                     {
                         id: 5,
-                        time: "04:00 PM",
-                        title: "Explore Shibuya Crossing",
-                        type: "Culture",
-                        icon: Camera,
-                        color: "bg-primary/10 text-primary"
+                        time: "02:00 PM",
+                        title: "Lunch at Britto's",
+                        type: "Food",
+                        icon: Utensils,
+                        color: "bg-green-100 text-green-600"
+                    },
+                    {
+                        id: 6,
+                        time: "08:00 PM",
+                        title: "Night Market at Arpora",
+                        type: "Shopping",
+                        icon: ShoppingBag, // Ensure ShoppingBag is imported if using this icon
+                        color: "bg-pink-100 text-pink-600"
                     }
                 ]
             },
             {
                 day: 3,
-                date: "July 12",
-                city: "Tokyo",
+                date: "Dec 07",
+                city: "South Goa",
                 activities: [
                     {
-                        id: 6,
-                        time: "10:00 AM",
-                        title: "Mt. Fuji Day Trip",
+                        id: 7,
+                        time: "09:00 AM",
+                        title: "Drive to Palolem Beach",
+                        type: "Transport",
+                        icon: MapPin,
+                        color: "bg-purple-100 text-purple-600"
+                    },
+                    {
+                        id: 8,
+                        time: "04:00 PM",
+                        title: "Kayaking in Backwaters",
                         type: "Adventure",
                         icon: Sun,
                         color: "bg-orange-100 text-orange-600"

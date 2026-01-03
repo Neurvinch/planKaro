@@ -21,123 +21,123 @@ const ActivitySelectionModal = ({ isOpen, onClose, onAddActivity, cityName = "To
     const activities = [
         {
             id: 1,
-            name: 'TeamLab Borderless Digital Art Museum',
+            name: 'Taj Mahal Day Tour',
             category: 'Culture',
-            image: 'https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&q=80&w=400',
-            duration: '2-3 hours',
-            cost: 35,
-            location: 'Odaiba, Tokyo',
-            description: 'Immersive digital art experience'
+            image: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&q=80&w=400',
+            duration: 'Full day',
+            cost: 2500,
+            location: 'Agra, India',
+            description: 'Visit the iconic symbol of love'
         },
         {
             id: 2,
-            name: 'Sushi Making Class',
+            name: 'Street Food Walk',
             category: 'Food',
-            image: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?auto=format&fit=crop&q=80&w=400',
+            image: 'https://images.unsplash.com/photo-1505253716362-afaea1d3d1af?auto=format&fit=crop&q=80&w=400',
             duration: '3 hours',
-            cost: 80,
-            location: 'Shibuya, Tokyo',
-            description: 'Learn to make authentic sushi'
+            cost: 1500,
+            location: 'Old Delhi',
+            description: 'Taste authentic Indian chaat & kebabs'
         },
         {
             id: 3,
-            name: 'Tokyo Station Hotel',
+            name: 'Rambagh Palace Stay',
             category: 'Stay',
-            image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=400',
+            image: 'https://images.unsplash.com/photo-1585543805890-6051f7829f98?auto=format&fit=crop&q=80&w=400',
             duration: 'Per night',
-            cost: 250,
-            location: 'Chiyoda, Tokyo',
-            description: 'Historic luxury hotel'
+            cost: 45000,
+            location: 'Jaipur, Rajasthan',
+            description: 'Luxury heritage hotel experience'
         },
         {
             id: 4,
-            name: 'Shinkansen to Kyoto',
+            name: 'Train to Jaipur',
             category: 'Transport',
-            image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=400',
-            duration: '2.5 hours',
-            cost: 140,
-            location: 'Tokyo → Kyoto',
-            description: 'High-speed bullet train'
+            image: 'https://images.unsplash.com/photo-1532305523741-65b7043840e3?auto=format&fit=crop&q=80&w=400',
+            duration: '5 hours',
+            cost: 1200,
+            location: 'Delhi → Jaipur',
+            description: 'Shatabdi Express train journey'
         },
         {
             id: 5,
-            name: 'Senso-ji Temple Visit',
+            name: 'Amer Fort Visit',
             category: 'Culture',
-            image: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&q=80&w=400',
-            duration: '1-2 hours',
-            cost: 0,
-            location: 'Asakusa, Tokyo',
-            description: 'Ancient Buddhist temple'
+            image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&q=80&w=400',
+            duration: '3-4 hours',
+            cost: 500,
+            location: 'Jaipur, Rajasthan',
+            description: 'Majestic hilltop fort tour'
         },
         {
             id: 6,
-            name: 'Ramen Tasting Tour',
+            name: 'Rajasthani Thali Dinner',
             category: 'Food',
-            image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&q=80&w=400',
-            duration: '3 hours',
-            cost: 60,
-            location: 'Shinjuku, Tokyo',
-            description: 'Sample the best ramen shops'
+            image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&q=80&w=400',
+            duration: '2 hours',
+            cost: 1800,
+            location: 'Chokhi Dhani, Jaipur',
+            description: 'Traditional cultural dining experience'
         },
         {
             id: 7,
-            name: 'Shibuya Shopping District',
+            name: 'Colaba Causeway Shopping',
             category: 'Shopping',
-            image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=400',
+            image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=400',
             duration: '2-4 hours',
             cost: 0,
-            location: 'Shibuya, Tokyo',
-            description: 'Fashion and electronics hub'
+            location: 'Mumbai, Maharashtra',
+            description: 'Fashion, jewelry, and antiques'
         },
         {
             id: 8,
-            name: 'Mt. Fuji Day Trip',
+            name: 'Rishikesh Rafting',
             category: 'Adventure',
-            image: 'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?auto=format&fit=crop&q=80&w=400',
-            duration: 'Full day',
-            cost: 120,
-            location: 'Mt. Fuji',
-            description: 'Guided tour to iconic mountain'
+            image: 'https://images.unsplash.com/photo-1530866495561-507c9faab2ed?auto=format&fit=crop&q=80&w=400',
+            duration: 'Half day',
+            cost: 2500,
+            location: 'Rishikesh',
+            description: 'White water rafting on the Ganges'
         },
         {
             id: 9,
-            name: 'Tsukiji Outer Market',
-            category: 'Food',
-            image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=400',
-            duration: '2 hours',
-            cost: 30,
-            location: 'Chuo, Tokyo',
-            description: 'Fresh seafood and street food'
+            name: 'Kerala Houseboat',
+            category: 'Stay',
+            image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&q=80&w=400',
+            duration: 'Per night',
+            cost: 15000,
+            location: 'Alleppey, Kerala',
+            description: 'Backwater cruise and stay'
         },
         {
             id: 10,
-            name: 'Tokyo Skytree Observatory',
-            category: 'Culture',
-            image: 'https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&q=80&w=400',
-            duration: '1.5 hours',
-            cost: 25,
-            location: 'Sumida, Tokyo',
-            description: 'Panoramic city views'
+            name: 'Scuba Diving',
+            category: 'Adventure',
+            image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80&w=400',
+            duration: '3 hours',
+            cost: 5000,
+            location: 'Havelock, Andaman',
+            description: 'Explore coral reefs'
         },
         {
             id: 11,
-            name: 'Capsule Hotel Experience',
-            category: 'Stay',
-            image: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&q=80&w=400',
-            duration: 'Per night',
-            cost: 40,
-            location: 'Shinjuku, Tokyo',
-            description: 'Unique Japanese accommodation'
+            name: 'Goa Shack Chill',
+            category: 'Food',
+            image: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&q=80&w=400',
+            duration: 'Flexible',
+            cost: 1000,
+            location: 'Anjuna, Goa',
+            description: 'Seafood and sunset vibes'
         },
         {
             id: 12,
-            name: 'Harajuku Street Fashion Tour',
+            name: 'Mysore Silk Saree Shop',
             category: 'Shopping',
-            image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=400',
+            image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=400',
             duration: '2 hours',
             cost: 0,
-            location: 'Harajuku, Tokyo',
-            description: 'Explore trendy fashion district'
+            location: 'Mysore, Karnataka',
+            description: 'Authentic silk shopping'
         },
     ];
 
@@ -203,8 +203,8 @@ const ActivitySelectionModal = ({ isOpen, onClose, onAddActivity, cityName = "To
                                     key={category.id}
                                     onClick={() => setSelectedCategory(category.id)}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium text-sm whitespace-nowrap transition-all ${isActive
-                                            ? 'bg-primary text-white shadow-soft'
-                                            : 'bg-white text-text-light hover:bg-sand/20 hover:text-primary border border-sand/50'
+                                        ? 'bg-primary text-white shadow-soft'
+                                        : 'bg-white text-text-light hover:bg-sand/20 hover:text-primary border border-sand/50'
                                         }`}
                                 >
                                     {Icon && <Icon size={16} />}
@@ -257,7 +257,7 @@ const ActivitySelectionModal = ({ isOpen, onClose, onAddActivity, cityName = "To
                                             </div>
                                             <div className="flex items-center text-xs font-semibold text-text-dark bg-sand/20 px-2 py-1 rounded-full">
                                                 <DollarSign size={12} className="text-primary" />
-                                                {activity.cost === 0 ? 'Free' : `$${activity.cost}`}
+                                                {activity.cost === 0 ? 'Free' : `₹${activity.cost}`}
                                             </div>
                                         </div>
 
