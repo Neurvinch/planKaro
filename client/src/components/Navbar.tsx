@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Menu, X, Globe, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from './Button';
+import logo from '../assets/logo.jpg';
 
 interface User {
     name: string;
@@ -22,12 +23,7 @@ const Navbar: React.FC<NavbarProps> = ({ user }) => {
                     {/* Logo */}
                     <div className="flex items-center">
                         <Link to="/" className="flex items-center gap-2">
-                            <div className="bg-primary/10 p-2 rounded-[16px]">
-                                <Globe className="h-6 w-6 text-primary" />
-                            </div>
-                            <span className="font-display font-bold text-xl text-text-dark">
-                                PlanKaro
-                            </span>
+                            <img src={logo} alt="PlanKaro Logo" className="h-10 w-auto object-contain" />
                         </Link>
                     </div>
 

@@ -4,6 +4,7 @@ import { Globe, Eye, EyeOff } from 'lucide-react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Navbar from '../components/Navbar';
+import logo from '../assets/logo.jpg';
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +40,7 @@ const LoginPage = () => {
                 <div className="w-full max-w-md">
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center justify-center p-3 bg-white rounded-[20px] shadow-soft mb-4">
-                            <Globe className="h-8 w-8 text-primary" />
+                            <img src={logo} alt="PlanKaro Logo" className="h-10 w-auto" />
                         </div>
                         <h2 className="text-3xl font-display font-bold text-text-dark">
                             Welcome back
@@ -78,7 +79,7 @@ const LoginPage = () => {
                             {/* Password */}
                             <div>
                                 <div className="flex items-center justify-between mb-1">
-                                    <label htmlFor="password" class="block text-sm font-medium text-text-dark">
+                                    <label htmlFor="password" className="block text-sm font-medium text-text-dark">
                                         Password
                                     </label>
                                     <Link to="#" className="text-sm font-medium text-primary hover:text-primary-dark transition-colors">
