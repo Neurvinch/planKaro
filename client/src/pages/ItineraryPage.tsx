@@ -1,13 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
-import { Plus, Trash2, MapPin, Calendar, ExternalLink } from 'lucide-react';
+import {
+    Plus, Trash2, MapPin, Calendar, ExternalLink, Copy, ArrowLeft,
+    LayoutGrid, Calendar as CalendarIcon, DollarSign, Clock, Share2, Search
+} from 'lucide-react';
+import BudgetChart from '../components/BudgetChart';
+import TripCalendar from '../components/TripCalendar';
+import Navbar from '../components/Navbar';
+import Button from '../components/Button';
+import Card from '../components/Card';
+import CitySearchModal from '../components/CitySearchModal';
+import ActivitySelectionModal from '../components/ActivitySelectionModal';
+import { useAuthStore } from '../store/authStore';
 
-const ItineraryPage = () => {
+const ItineraryPage: React.FC = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuthStore();
     const [trip, setTrip] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [view, setView] = useState<'list' | 'calendar'>('list');
+    const [isCityModalOpen, setIsCityModalOpen] = useState(false);
+    const [isActivityModalOpen, setIsActivityModalOpen] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchTrip = async () => {
@@ -24,22 +39,8 @@ const ItineraryPage = () => {
         fetchTrip();
     }, [id, navigate]);
 
-    const [showSearch, setShowSearch] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<any[]>([]);
-
-    const handleSearch = async (q: string) => {
-        setSearchQuery(q);
-        if (q.length < 2) return setSearchResults([]);
-        try {
-            const res = await api.get(`/cities?q=${q}`);
-            setSearchResults(res.data);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
     const addStop = async (city: any) => {
+        // Simple date picker simulation
         const startDate = prompt('Enter start date (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
         const endDate = prompt('Enter end date (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
 
@@ -49,38 +50,24 @@ const ItineraryPage = () => {
             const newStops = [...trip.stops, { cityId: city._id, startDate, endDate, activities: [] }];
             const res = await api.put(`/trips/${id}/stops`, { stops: newStops });
             setTrip(res.data);
-            setShowSearch(false);
-            setSearchQuery('');
-            setSearchResults([]);
+            setIsCityModalOpen(false);
         } catch (err) {
             alert('Failed to add stop');
         }
     };
 
-    const [showActivitySearch, setShowActivitySearch] = useState<number | null>(null);
-    const [cityActivities, setCityActivities] = useState<any[]>([]);
-
-    const fetchActivities = async (cityId: string, index: number) => {
-        try {
-            const res = await api.get(`/activities?cityId=${cityId}`);
-            setCityActivities(res.data);
-            setShowActivitySearch(index);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const addActivity = async (stopIndex: number, activity: any) => {
+    const addActivity = async (activity: any) => {
+        if (isActivityModalOpen === null) return;
         try {
             const updatedStops = [...trip.stops];
-            updatedStops[stopIndex].activities.push({
+            updatedStops[isActivityModalOpen].activities.push({
                 activityId: activity._id,
                 costOverride: activity.cost
             });
 
             const res = await api.put(`/trips/${id}/stops`, { stops: updatedStops });
             setTrip(res.data);
-            setShowActivitySearch(null);
+            setIsActivityModalOpen(null);
         } catch (err) {
             alert('Failed to add activity');
         }
@@ -97,149 +84,287 @@ const ItineraryPage = () => {
         }
     };
 
-    if (loading) return <div style={{ padding: '40px' }}>Loading itinerary...</div>;
+    const handleCopy = async () => {
+        try {
+            const res = await api.post(`/trips/${id}/copy`);
+            alert('Trip copied successfully!');
+            navigate(`/trip/${res.data._id}`);
+        } catch (err) {
+            alert('Failed to copy trip');
+        }
+    };
+
+    const handleShare = async () => {
+        const url = `${window.location.origin}/public/itinerary/${id}`;
+        try {
+            await navigator.clipboard.writeText(url);
+            alert('Share link copied to clipboard!');
+        } catch (err) {
+            console.error('Failed to copy share link');
+        }
+    };
+
+    if (loading) return (
+        <div className="min-h-screen bg-cream flex items-center justify-center">
+            <div className="text-center">
+                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-text-light font-medium">Loading your adventure...</p>
+            </div>
+        </div>
+    );
     if (!trip) return null;
 
     return (
-        <div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
-            <button onClick={() => navigate('/')} style={{ background: 'transparent', color: 'var(--text-muted)', marginBottom: '24px' }}>← All Trips</button>
+        <div className="min-h-screen bg-cream">
+            <Navbar user={user ? { name: user.name, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.name } : null} />
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
-                <div>
-                    <h1 style={{ fontSize: '32px', marginBottom: '8px' }}>{trip.name}</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>{trip.description}</p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                    <p style={{ fontSize: '14px', marginBottom: '4px' }}>Total Budget: <span style={{ color: 'var(--accent)', fontWeight: '700' }}>${trip.budget.total}</span></p>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        <button className="glass" style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px' }}>Share Trip <ExternalLink size={14} /></button>
+            {/* Header Section */}
+            <div className="relative h-64 md:h-80 overflow-hidden">
+                <img
+                    src={`https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=1200&seed=${trip._id}`}
+                    className="w-full h-full object-cover"
+                    alt={trip.name}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-8">
+                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
+                        <div className="text-white">
+                            <button
+                                onClick={() => navigate('/')}
+                                className="flex items-center gap-2 text-white/80 hover:text-white transition-colors mb-4 text-sm font-medium"
+                            >
+                                <ArrowLeft size={16} />
+                                Back to All Trips
+                            </button>
+                            <h1 className="text-4xl md:text-5xl font-display font-bold mb-2">{trip.name}</h1>
+                            <p className="text-white/80 text-lg flex items-center gap-4">
+                                <span className="flex items-center gap-1.5"><CalendarIcon size={18} /> {new Date(trip.startDate).toLocaleDateString()} - {new Date(trip.endDate).toLocaleDateString()}</span>
+                                <span className="flex items-center gap-1.5"><MapPin size={18} /> {trip.stops.length} destinations</span>
+                            </p>
+                        </div>
+                        <div className="flex gap-3">
+                            <Button variant="secondary" onClick={handleShare} className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md">
+                                <Share2 size={18} className="mr-2" /> Share
+                            </Button>
+                            <Button variant="secondary" onClick={handleCopy} className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md">
+                                <Copy size={18} className="mr-2" /> Copy Trip
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '40px' }}>
-                <main>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                        <h2>Stops & Itinerary</h2>
-                        <button onClick={() => setShowSearch(!showSearch)} style={{ background: 'var(--primary)', color: 'white', padding: '8px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-                            <Plus size={16} /> {showSearch ? 'Close' : 'Add Stop'}
-                        </button>
-                    </div>
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    {/* Main Content: Stops & Itinerary */}
+                    <div className="lg:col-span-2 space-y-8">
+                        <div className="flex items-center justify-between mb-2">
+                            <h2 className="text-2xl font-display font-bold text-text-dark">Itinerary Planner</h2>
+                            <div className="flex items-center gap-3">
+                                <div className="bg-sand/30 p-1 rounded-xl flex">
+                                    <button
+                                        onClick={() => setView('list')}
+                                        className={`p-2 rounded-lg transition-all ${view === 'list' ? 'bg-white text-primary shadow-sm' : 'text-text-light hover:text-text-dark'}`}
+                                    >
+                                        <LayoutGrid size={20} />
+                                    </button>
+                                    <button
+                                        onClick={() => setView('calendar')}
+                                        className={`p-2 rounded-lg transition-all ${view === 'calendar' ? 'bg-white text-primary shadow-sm' : 'text-text-light hover:text-text-dark'}`}
+                                    >
+                                        <CalendarIcon size={20} />
+                                    </button>
+                                </div>
+                                <Button variant="primary" size="sm" onClick={() => setIsCityModalOpen(true)} className="flex items-center gap-2">
+                                    <Plus size={18} /> Add Stop
+                                </Button>
+                            </div>
+                        </div>
 
-                    {showSearch && (
-                        <div className="glass" style={{ padding: '20px', marginBottom: '24px' }}>
-                            <input
-                                type="text"
-                                placeholder="Search for a city (e.g. Paris, Tokyo)..."
-                                value={searchQuery}
-                                onChange={(e) => handleSearch(e.target.value)}
-                                style={{ width: '100%', padding: '12px', background: 'var(--glass)', border: '1px solid var(--border)', borderRadius: '8px', color: 'white', marginBottom: '12px', outline: 'none' }}
-                            />
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                {searchResults.map(city => (
-                                    <div key={city._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px' }}>
-                                        <span>{city.name}, {city.country}</span>
-                                        <button onClick={() => addStop(city)} style={{ background: 'var(--primary)', padding: '4px 12px', borderRadius: '4px', fontSize: '12px', color: 'white' }}>Add to Trip</button>
+                        {view === 'calendar' ? (
+                            <Card className="p-6">
+                                <TripCalendar stops={trip.stops} />
+                            </Card>
+                        ) : trip.stops.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-[32px] shadow-soft border border-sand/30">
+                                <div className="w-20 h-20 bg-sand/10 rounded-full flex items-center justify-center mb-4">
+                                    <MapPin size={40} className="text-primary/50" />
+                                </div>
+                                <h3 className="text-xl font-bold text-text-dark mb-1">No stops yet</h3>
+                                <p className="text-text-light mb-6">Where would you like to go first?</p>
+                                <Button variant="outline" onClick={() => setIsCityModalOpen(true)}>Add Your First Stop</Button>
+                            </div>
+                        ) : (
+                            <div className="space-y-6 relative">
+                                <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gradient-to-b from-primary/30 via-sand/50 to-primary/30" />
+                                {trip.stops.map((stop: any, index: number) => (
+                                    <div key={index} className="relative pl-14">
+                                        <div className="absolute left-0 top-2 w-12 h-12 rounded-full bg-white border-4 border-cream flex items-center justify-center text-primary font-bold shadow-soft z-10">
+                                            {index + 1}
+                                        </div>
+                                        <Card className="p-6 hover:shadow-medium transition-all group">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-text-dark group-hover:text-primary transition-colors">
+                                                        {stop.cityId?.name || 'Unknown City'}
+                                                    </h3>
+                                                    <p className="text-sm text-text-light flex items-center gap-1.5 mt-1">
+                                                        <CalendarIcon size={14} className="text-primary" />
+                                                        {new Date(stop.startDate).toLocaleDateString()} - {new Date(stop.endDate).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    onClick={() => removeStop(index)}
+                                                    className="p-2 text-text-light hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </div>
+
+                                            <div className="bg-sand/10 rounded-2xl p-5 border border-sand/20">
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <h4 className="text-xs font-bold uppercase tracking-wider text-text-light">Activities</h4>
+                                                    <button
+                                                        onClick={() => setIsActivityModalOpen(index)}
+                                                        className="text-sm font-semibold text-primary hover:text-primary-dark transition-colors flex items-center gap-1"
+                                                    >
+                                                        <Plus size={14} /> Add Activity
+                                                    </button>
+                                                </div>
+
+                                                {stop.activities.length === 0 ? (
+                                                    <p className="text-sm text-text-light/70 italic text-center py-4 bg-white/30 rounded-xl border border-dashed border-sand">
+                                                        No activities planned for this stop yet.
+                                                    </p>
+                                                ) : (
+                                                    <div className="space-y-3">
+                                                        {stop.activities.map((act: any, aIdx: number) => (
+                                                            <div key={aIdx} className="flex items-center justify-between bg-white px-4 py-3 rounded-xl shadow-xs border border-sand/10">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                                                        <Clock size={16} />
+                                                                    </div>
+                                                                    <span className="text-sm font-medium text-text-dark">{act.activityId?.name}</span>
+                                                                </div>
+                                                                <span className="text-sm font-bold text-primary">${act.costOverride || act.activityId?.cost || 0}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </Card>
                                     </div>
                                 ))}
-                                {searchQuery.length >= 2 && searchResults.length === 0 && <p style={{ fontSize: '13px', color: 'var(--text-muted)', textAlign: 'center' }}>No cities found.</p>}
                             </div>
-                        </div>
-                    )}
-
-                    {trip.stops.length === 0 ? (
-                        <div className="glass" style={{ padding: '40px', textAlign: 'center' }}>
-                            <p style={{ color: 'var(--text-muted)' }}>No stops added yet. Start by adding a city!</p>
-                        </div>
-                    ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            {trip.stops.map((stop: any, index: number) => (
-                                <div key={index} className="glass" style={{ padding: '24px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                            <div style={{ width: '32px', height: '32px', background: 'var(--primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '700' }}>
-                                                {index + 1}
-                                            </div>
-                                            <h3>{stop.cityId?.name || 'Unknown City'}</h3>
-                                        </div>
-                                        <button onClick={() => removeStop(index)} style={{ color: '#ef4444', background: 'transparent' }}><Trash2 size={16} /></button>
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Calendar size={14} /> {new Date(stop.startDate).toLocaleDateString()} - {new Date(stop.endDate).toLocaleDateString()}</span>
-                                    </div>
-
-                                    <div style={{ background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px', padding: '16px' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                                            <h4 style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>Activities</h4>
-                                            <button onClick={() => fetchActivities(stop.cityId?._id, index)} style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '600', background: 'transparent' }}>+ Add Activity</button>
-                                        </div>
-
-                                        {showActivitySearch === index && (
-                                            <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '12px', marginBottom: '12px' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                                    <span style={{ fontSize: '12px', fontWeight: '700' }}>Available Activities</span>
-                                                    <button onClick={() => setShowActivitySearch(null)} style={{ fontSize: '10px', background: 'var(--border)', padding: '2px 6px', borderRadius: '4px' }}>Close</button>
-                                                </div>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                                    {cityActivities.length === 0 ? (
-                                                        <p style={{ fontSize: '11px', color: 'var(--text-muted)' }}>No activities found for this city.</p>
-                                                    ) : (
-                                                        cityActivities.map(act => (
-                                                            <div key={act._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px', background: 'rgba(255,255,255,0.02)', borderRadius: '4px' }}>
-                                                                <span style={{ fontSize: '12px' }}>{act.name} (${act.cost})</span>
-                                                                <button onClick={() => addActivity(index, act)} style={{ background: 'var(--primary)', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', color: 'white' }}>Select</button>
-                                                            </div>
-                                                        ))
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
-                                        {stop.activities.length === 0 ? (
-                                            <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No activities planned.</p>
-                                        ) : (
-                                            stop.activities.map((act: any, aIdx: number) => (
-                                                <div key={aIdx} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
-                                                    <span style={{ fontSize: '14px' }}>{act.activityId?.name}</span>
-                                                    <span style={{ fontWeight: '600' }}>${act.costOverride || act.activityId?.cost || 0}</span>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </main>
-
-                <aside>
-                    <div className="glass" style={{ padding: '24px' }}>
-                        <h3 style={{ marginBottom: '20px' }}>Budget Breakdown</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'var(--text-muted)' }}>Stays</span>
-                                <span>${trip.budget.accommodation}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'var(--text-muted)' }}>Activities</span>
-                                <span>${trip.budget.activities}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'var(--text-muted)' }}>Meals</span>
-                                <span>${trip.budget.meals}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: 'var(--text-muted)' }}>Transport</span>
-                                <span>${trip.budget.transport}</span>
-                            </div>
-                            <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '8px 0' }} />
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '700', fontSize: '18px' }}>
-                                <span>Total</span>
-                                <span style={{ color: 'var(--accent)' }}>${trip.budget.total}</span>
-                            </div>
-                        </div>
+                        )}
                     </div>
-                </aside>
-            </div>
+
+                    {/* Sidebar: Budget & Info */}
+                    <aside className="space-y-8">
+                        {/* Budget Card */}
+                        <Card className="p-8 border-none bg-gradient-to-br from-white to-sand/20 shadow-medium">
+                            <h3 className="text-xl font-bold text-text-dark mb-6">Budget Overview</h3>
+                            <BudgetChart data={trip.budget} />
+
+                            <div className="mt-8 space-y-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold uppercase tracking-wider text-text-light ml-1">Accommodation ($)</label>
+                                    <input
+                                        type="number"
+                                        value={trip.budget.accommodation}
+                                        onChange={(e) => setTrip({ ...trip, budget: { ...trip.budget, accommodation: Number(e.target.value) } })}
+                                        className="w-full px-4 py-2 bg-white border border-sand rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold uppercase tracking-wider text-text-light ml-1">Transport ($)</label>
+                                    <input
+                                        type="number"
+                                        value={trip.budget.transport}
+                                        onChange={(e) => setTrip({ ...trip, budget: { ...trip.budget, transport: Number(e.target.value) } })}
+                                        className="w-full px-4 py-2 bg-white border border-sand rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold uppercase tracking-wider text-text-light ml-1">Meals ($)</label>
+                                    <input
+                                        type="number"
+                                        value={trip.budget.meals}
+                                        onChange={(e) => setTrip({ ...trip, budget: { ...trip.budget, meals: Number(e.target.value) } })}
+                                        className="w-full px-4 py-2 bg-white border border-sand rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium"
+                                    />
+                                </div>
+
+                                <div className="flex items-center justify-between py-2 px-1">
+                                    <span className="text-sm font-medium text-text-light">Activities</span>
+                                    <span className="text-sm font-bold text-text-dark">${trip.budget.activities}</span>
+                                </div>
+
+                                <div className="h-px bg-sand/30 my-4" />
+
+                                <div className="flex items-center justify-between mb-6">
+                                    <span className="text-lg font-bold text-text-dark">Total Budget</span>
+                                    <span className="text-2xl font-display font-bold text-primary">${
+                                        trip.budget.accommodation + trip.budget.transport + trip.budget.meals + trip.budget.activities
+                                    }</span>
+                                </div>
+
+                                <Button
+                                    variant="primary"
+                                    fullWidth
+                                    onClick={async () => {
+                                        try {
+                                            const res = await api.put(`/trips/${id}/budget`, { budget: trip.budget });
+                                            setTrip(res.data);
+                                            alert('Budget updated!');
+                                        } catch (err) {
+                                            alert('Failed to update budget');
+                                        }
+                                    }}
+                                    className="shadow-lg"
+                                >
+                                    Save Budget Changes
+                                </Button>
+                            </div>
+                        </Card>
+
+                        {/* Useful Links / Info */}
+                        <Card className="p-6 bg-primary/5 border-none">
+                            <h4 className="font-bold text-text-dark mb-4 flex items-center gap-2">
+                                <Search size={18} className="text-primary" /> Quick Links
+                            </h4>
+                            <div className="space-y-2">
+                                <Link to={`/budget/${id}`} className="block p-3 rounded-xl bg-white hover:bg-sand/30 transition-all text-sm font-medium text-text-dark shadow-xs flex items-center justify-between group">
+                                    Manage Detailed Budget <DollarSign size={14} className="text-text-light group-hover:text-primary" />
+                                </Link>
+                                <Link to={`/timeline/${id}`} className="block p-3 rounded-xl bg-white hover:bg-sand/30 transition-all text-sm font-medium text-text-dark shadow-xs flex items-center justify-between group">
+                                    View Detailed Timeline <Clock size={14} className="text-text-light group-hover:text-primary" />
+                                </Link>
+                                <Link to={`/public/itinerary/${id}`} className="block p-3 rounded-xl bg-white hover:bg-sand/30 transition-all text-sm font-medium text-text-dark shadow-xs flex items-center justify-between group">
+                                    Public Share Page <ExternalLink size={14} className="text-text-light group-hover:text-primary" />
+                                </Link>
+                            </div>
+                        </Card>
+                    </aside>
+                </div>
+            </main>
+
+            {/* Modals */}
+            <CitySearchModal
+                isOpen={isCityModalOpen}
+                onClose={() => setIsCityModalOpen(false)}
+                onAddCity={addStop}
+            />
+
+            {isActivityModalOpen !== null && (
+                <ActivitySelectionModal
+                    isOpen={isActivityModalOpen !== null}
+                    onClose={() => setIsActivityModalOpen(null)}
+                    onAddActivity={addActivity}
+                    cityName={trip.stops[isActivityModalOpen]?.cityId?.name || "this city"}
+                    stop={trip.stops[isActivityModalOpen]}
+                />
+            )}
         </div>
     );
 };
