@@ -1,146 +1,133 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { LogIn, Mail, Lock, ArrowRight } from 'lucide-react';
-import { useAuthStore } from '../store/authStore.ts';
-import api from '../services/api.ts';
+import { Link } from 'react-router-dom';
+import { Globe, Eye, EyeOff } from 'lucide-react';
+import Card from '../components/Card';
+import Button from '../components/Button';
+import Navbar from '../components/Navbar';
+import logo from '../assets/logo.jpg';
 
 const LoginPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    });
     const [error, setError] = useState('');
-    const login = useAuthStore((state) => state.login);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
-        try {
-            const res = await api.post('/auth/login', { email, password });
-            login(res.data.user, res.data.token);
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Login failed');
-        } finally {
-            setLoading(false);
-        }
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+        if (error) setError('');
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!formData.email || !formData.password) {
+            setError('Please fill in all fields');
+            return;
+        }
+        // Handle login logic here
+        console.log('Login submitted:', formData);
+    };
+
+    const isFormValid = formData.email && formData.password;
+
     return (
-        <div className="login-container animate-fade-in" style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '100vh',
-            padding: '20px'
-        }}>
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="glass"
-                style={{
-                    width: '100%',
-                    maxWidth: '400px',
-                    padding: '40px',
-                    position: 'relative',
-                    overflow: 'hidden'
-                }}
-            >
-                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                    <div style={{
-                        width: '64px',
-                        height: '64px',
-                        background: 'var(--primary)',
-                        borderRadius: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '0 auto 16px',
-                        boxShadow: '0 8px 16px rgba(99, 102, 241, 0.3)'
-                    }}>
-                        <LogIn size={32} color="white" />
-                    </div>
-                    <h1 style={{ fontSize: '24px', color: 'white' }}>Welcome Back</h1>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Continue your journey with GlobeTrotter</p>
-                </div>
+        <div className="min-h-screen bg-cream flex flex-col">
+            <Navbar />
 
-                <form onSubmit={handleSubmit}>
-                    <div style={{ marginBottom: '20px' }}>
-                        <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email Address</label>
-                        <div style={{ position: 'relative' }}>
-                            <Mail style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} size={18} />
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                placeholder="alex@example.com"
-                                style={{
-                                    width: '100%',
-                                    padding: '12px 12px 12px 40px',
-                                    background: 'rgba(255, 255, 255, 0.05)',
-                                    border: '1px solid var(--glass-border)',
-                                    borderRadius: '12px',
-                                    color: 'white',
-                                    outline: 'none',
-                                    fontSize: '15px'
-                                }}
-                            />
+            <div className="flex-1 flex flex-col items-center justify-center p-4 sm:px-6 lg:px-8 bg-gradient-to-b from-cream via-sand/30 to-peach/10">
+                <div className="w-full max-w-md">
+                    <div className="text-center mb-8">
+                        <div className="inline-flex items-center justify-center p-3 bg-white rounded-[20px] shadow-soft mb-4">
+                            <img src={logo} alt="PlanKaro Logo" className="h-10 w-auto" />
                         </div>
+                        <h2 className="text-3xl font-display font-bold text-text-dark">
+                            Welcome back
+                        </h2>
+                        <p className="mt-2 text-text-light">
+                            Log in to your PlanKaro account
+                        </p>
                     </div>
 
-                    <div style={{ marginBottom: '24px' }}>
-                        <label style={{ display: 'block', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Password</label>
-                        <div style={{ position: 'relative' }}>
-                            <Lock style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} size={18} />
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                placeholder="••••••••"
-                                style={{
-                                    width: '100%',
-                                    padding: '12px 12px 12px 40px',
-                                    background: 'rgba(255, 255, 255, 0.05)',
-                                    border: '1px solid var(--glass-border)',
-                                    borderRadius: '12px',
-                                    color: 'white',
-                                    outline: 'none',
-                                    fontSize: '15px'
-                                }}
-                            />
-                        </div>
-                    </div>
+                    <Card className="border-sand/60 shadow-medium backdrop-blur-sm">
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Error Message */}
+                            {error && (
+                                <div className="p-3 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600 font-medium">
+                                    {error}
+                                </div>
+                            )}
 
-                    {error && <p style={{ color: '#ef4444', fontSize: '14px', marginBottom: '16px', textAlign: 'center' }}>{error}</p>}
+                            {/* Email */}
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium text-text-dark mb-1">
+                                    Email Address
+                                </label>
+                                <input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    required
+                                    className="block w-full px-4 py-2.5 bg-sand/30 border border-sand rounded-[16px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 sm:text-sm"
+                                    placeholder="you@example.com"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                />
+                            </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        style={{
-                            width: '100%',
-                            padding: '14px',
-                            background: 'var(--primary)',
-                            color: 'white',
-                            borderRadius: '12px',
-                            fontWeight: '600',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '8px',
-                            fontSize: '16px'
-                        }}
-                    >
-                        {loading ? 'Authenticating...' : 'Sign In'}
-                        {!loading && <ArrowRight size={18} />}
-                    </button>
-                </form>
+                            {/* Password */}
+                            <div>
+                                <div className="flex items-center justify-between mb-1">
+                                    <label htmlFor="password" className="block text-sm font-medium text-text-dark">
+                                        Password
+                                    </label>
+                                    <Link to="#" className="text-sm font-medium text-primary hover:text-primary-dark transition-colors">
+                                        Forgot password?
+                                    </Link>
+                                </div>
+                                <div className="relative">
+                                    <input
+                                        id="password"
+                                        name="password"
+                                        type={showPassword ? "text" : "password"}
+                                        required
+                                        className="block w-full px-4 py-2.5 bg-sand/30 border border-sand rounded-[16px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 sm:text-sm pr-10"
+                                        placeholder="••••••••"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-light hover:text-text-dark focus:outline-none"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
+                                </div>
+                            </div>
 
-                <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Don't have an account? </span>
-                    <a href="/signup" style={{ color: 'var(--primary)', fontWeight: '600' }}>Create account</a>
+                            <Button
+                                type="submit"
+                                fullWidth
+                                disabled={!isFormValid}
+                                className="py-2.5 rounded-[20px]"
+                            >
+                                Log In
+                            </Button>
+
+                            <div className="text-center mt-6">
+                                <p className="text-sm text-text-light">
+                                    Don't have an account?{' '}
+                                    <Link to="/signup" className="font-semibold text-primary hover:text-primary-dark transition-colors">
+                                        Create account
+                                    </Link>
+                                </p>
+                            </div>
+                        </form>
+                    </Card>
                 </div>
-            </motion.div>
+            </div>
         </div>
     );
 };

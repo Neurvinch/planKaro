@@ -1,372 +1,391 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import api from '../services/api';
+import React, { useState } from 'react';
 import {
-    Plus, Trash2, MapPin, Calendar, ExternalLink, Copy, ArrowLeft,
-    LayoutGrid, Calendar as CalendarIcon, DollarSign, Clock, Share2, Search
+    MapPin, Calendar, Clock, Plus, GripVertical,
+    MoreVertical, ChevronRight, Settings, Share2,
+    ArrowLeft, Image as ImageIcon, Train
 } from 'lucide-react';
-import BudgetChart from '../components/BudgetChart';
-import TripCalendar from '../components/TripCalendar';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import CitySearchModal from '../components/CitySearchModal';
 import ActivitySelectionModal from '../components/ActivitySelectionModal';
-import { useAuthStore } from '../store/authStore';
+import TrainSearchModal from '../components/TrainSearchModal';
+import TripTimeline from '../components/TripTimeline';
 
-const ItineraryPage: React.FC = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const { user } = useAuthStore();
-    const [trip, setTrip] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
-    const [view, setView] = useState<'list' | 'calendar'>('list');
-    const [isCityModalOpen, setIsCityModalOpen] = useState(false);
-    const [isActivityModalOpen, setIsActivityModalOpen] = useState<number | null>(null);
+const ItineraryPage = () => {
+    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+    const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
+    const [isTrainModalOpen, setIsTrainModalOpen] = useState(false);
+    const [selectedCityForActivity, setSelectedCityForActivity] = useState<string | null>(null);
+    const [selectedDayForActivity, setSelectedDayForActivity] = useState<number | null>(null);
+    // Mock user
+    const user = {
+        name: "Alex",
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
+    };
 
-    useEffect(() => {
-        const fetchTrip = async () => {
-            try {
-                const res = await api.get(`/trips/${id}`);
-                setTrip(res.data);
-            } catch (err) {
-                console.error('Failed to fetch trip', err);
-                navigate('/');
-            } finally {
-                setLoading(false);
+    // Mock Itinerary Data
+    const [trip, setTrip] = useState({
+        id: 1,
+        name: "Golden Triangle Tour",
+        dates: "Nov 15 - Nov 20, 2024",
+        status: "Confirmed",
+        coverImage: "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&q=80&w=1200",
+        cities: [
+            {
+                id: 'c1',
+                name: "Delhi",
+                dates: "Nov 15 - Nov 16",
+                days: [
+                    {
+                        day: 1,
+                        date: "Nov 15",
+                        activities: [
+                            { id: 'a1', time: "10:00 AM", title: "Arrival at IGI Airport", type: "Transport" },
+                            { id: 'a2', time: "01:00 PM", title: "Check-in at The Imperial", type: "Stay" },
+                            { id: 'a3', time: "06:00 PM", title: "Dinner at Karim's, Old Delhi", type: "Food" }
+                        ]
+                    },
+                    {
+                        day: 2,
+                        date: "Nov 16",
+                        activities: [
+                            { id: 'a4', time: "09:00 AM", title: "Visit Red Fort", type: "Culture" },
+                            { id: 'a5', time: "02:00 PM", title: "Drive to Agra", type: "Transport" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'c2',
+                name: "Agra",
+                dates: "Nov 17 - Nov 18",
+                days: [
+                    {
+                        day: 3,
+                        date: "Nov 17",
+                        activities: [
+                            { id: 'a6', time: "06:00 AM", title: "Sunrise at Taj Mahal", type: "Culture" },
+                            { id: 'a7', time: "11:00 AM", title: "Agra Fort Tour", type: "Culture" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'c3',
+                name: "Jaipur",
+                dates: "Nov 19 - Nov 20",
+                days: [
+                    {
+                        day: 5,
+                        date: "Nov 19",
+                        activities: [
+                            { id: 'a8', time: "10:00 AM", title: "Drive to Jaipur", type: "Transport" },
+                            { id: 'a9', time: "04:00 PM", title: "Hawa Mahal Photo Stop", type: "Culture" },
+                            { id: 'a10', time: "07:00 PM", title: "Chokhi Dhani Dinner", type: "Food" }
+                        ]
+                    }
+                ]
             }
-        };
-        fetchTrip();
-    }, [id, navigate]);
+        ]
+    });
 
-    const addStop = async (city: any) => {
-        // Simple date picker simulation
-        const startDate = prompt('Enter start date (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
-        const endDate = prompt('Enter end date (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
-
-        if (!startDate || !endDate) return;
-
-        try {
-            const newStops = [...trip.stops, { cityId: city._id, startDate, endDate, activities: [] }];
-            const res = await api.put(`/trips/${id}/stops`, { stops: newStops });
-            setTrip(res.data);
-            setIsCityModalOpen(false);
-        } catch (err) {
-            alert('Failed to add stop');
-        }
+    const handleDelete = (activityId) => {
+        setTrip(prevTrip => {
+            const newCities = prevTrip.cities.map(city => ({
+                ...city,
+                days: city.days.map(day => ({
+                    ...day,
+                    activities: day.activities.filter(a => a.id !== activityId)
+                }))
+            }));
+            return { ...prevTrip, cities: newCities };
+        });
     };
 
-    const addActivity = async (activity: any) => {
-        if (isActivityModalOpen === null) return;
-        try {
-            const updatedStops = [...trip.stops];
-            updatedStops[isActivityModalOpen].activities.push({
-                activityId: activity._id,
-                costOverride: activity.cost
+    const handleAddCity = (city) => {
+        console.log('Adding city:', city);
+        // Logic to add city to itinerary
+        setIsSearchModalOpen(false);
+    };
+
+    const handleAddActivity = (activity: any) => {
+        if (!selectedCityForActivity || !selectedDayForActivity) return;
+
+        setTrip(prevTrip => {
+            const newCities = prevTrip.cities.map(city => {
+                if (city.name !== selectedCityForActivity) return city;
+
+                const newDays = city.days.map(day => {
+                    if (day.day !== selectedDayForActivity) return day;
+
+                    return {
+                        ...day,
+                        activities: [
+                            ...day.activities,
+                            {
+                                id: `new_${Date.now()}`,
+                                title: activity.name,
+                                type: activity.category as any || "Other",
+                                time: "10:00 AM",
+                                location: activity.location,
+                                cost: activity.cost
+                            }
+                        ]
+                    };
+                });
+                return { ...city, days: newDays };
             });
+            return { ...prevTrip, cities: newCities };
+        });
 
-            const res = await api.put(`/trips/${id}/stops`, { stops: updatedStops });
-            setTrip(res.data);
-            setIsActivityModalOpen(null);
-        } catch (err) {
-            alert('Failed to add activity');
-        }
+        setIsActivityModalOpen(false);
+        setSelectedDayForActivity(null);
     };
 
-    const removeStop = async (index: number) => {
-        if (!window.confirm('Remove this stop?')) return;
-        try {
-            const newStops = trip.stops.filter((_: any, i: number) => i !== index);
-            const res = await api.put(`/trips/${id}/stops`, { stops: newStops });
-            setTrip(res.data);
-        } catch (err) {
-            alert('Failed to remove stop');
-        }
+    const handleAddTrainJourney = (train: any) => {
+        if (!selectedDayForActivity) return;
+
+        setTrip(prevTrip => {
+            const newCities = prevTrip.cities.map(city => {
+                // For simplicity, add to the first city or based on logic
+                // Here we just add to the day where user clicked "Add Train"
+                const hasTargetDay = city.days.some(d => d.day === selectedDayForActivity);
+                if (!hasTargetDay) return city;
+
+                const newDays = city.days.map(day => {
+                    if (day.day !== selectedDayForActivity) return day;
+
+                    return {
+                        ...day,
+                        activities: [
+                            ...day.activities,
+                            {
+                                id: `train_${Date.now()}`,
+                                title: `${train.number} - ${train.name}`,
+                                type: "Transport",
+                                time: train.departure,
+                                location: `${train.from} → ${train.to}`,
+                                cost: train.price
+                            }
+                        ]
+                    };
+                });
+                return { ...city, days: newDays };
+            });
+            return { ...prevTrip, cities: newCities };
+        });
+
+        setIsTrainModalOpen(false);
+        setSelectedDayForActivity(null);
     };
 
-    const handleCopy = async () => {
-        try {
-            const res = await api.post(`/trips/${id}/copy`);
-            alert('Trip copied successfully!');
-            navigate(`/trip/${res.data._id}`);
-        } catch (err) {
-            alert('Failed to copy trip');
-        }
+    const openActivityModal = (cityName, dayNumber) => {
+        setSelectedCityForActivity(cityName);
+        setSelectedDayForActivity(dayNumber);
+        setIsActivityModalOpen(true);
     };
-
-    const handleShare = async () => {
-        const url = `${window.location.origin}/public/itinerary/${id}`;
-        try {
-            await navigator.clipboard.writeText(url);
-            alert('Share link copied to clipboard!');
-        } catch (err) {
-            console.error('Failed to copy share link');
-        }
-    };
-
-    if (loading) return (
-        <div className="min-h-screen bg-cream flex items-center justify-center">
-            <div className="text-center">
-                <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-text-light font-medium">Loading your adventure...</p>
-            </div>
-        </div>
-    );
-    if (!trip) return null;
 
     return (
         <div className="min-h-screen bg-cream">
-            <Navbar user={user ? { name: user.name, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.name } : null} />
+            <Navbar user={user} />
 
-            {/* Header Section */}
-            <div className="relative h-64 md:h-80 overflow-hidden">
+            {/* Trip Header Image (Banner) */}
+            <div className="relative h-64 md:h-80 w-full overflow-hidden">
                 <img
-                    src={`https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=1200&seed=${trip._id}`}
-                    className="w-full h-full object-cover"
+                    src={trip.coverImage}
                     alt={trip.name}
+                    className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-8">
-                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
-                        <div className="text-white">
-                            <button
-                                onClick={() => navigate('/')}
-                                className="flex items-center gap-2 text-white/80 hover:text-white transition-colors mb-4 text-sm font-medium"
-                            >
-                                <ArrowLeft size={16} />
-                                Back to All Trips
-                            </button>
-                            <h1 className="text-4xl md:text-5xl font-display font-bold mb-2">{trip.name}</h1>
-                            <p className="text-white/80 text-lg flex items-center gap-4">
-                                <span className="flex items-center gap-1.5"><CalendarIcon size={18} /> {new Date(trip.startDate).toLocaleDateString()} - {new Date(trip.endDate).toLocaleDateString()}</span>
-                                <span className="flex items-center gap-1.5"><MapPin size={18} /> {trip.stops.length} destinations</span>
-                            </p>
+                <div className="absolute inset-0 bg-gradient-to-t from-cream via-transparent to-black/20" />
+
+                <div className="absolute bottom-0 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 flex justify-between items-end">
+                    <div className="flex items-center gap-4">
+                        <Link to="/my-trips" className="bg-white/90 backdrop-blur-sm p-2 rounded-full hover:shadow-medium transition-all">
+                            <ArrowLeft size={20} className="text-text-dark" />
+                        </Link>
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-display font-bold text-text-dark">
+                                {trip.name}
+                            </h1>
+                            <div className="flex items-center gap-4 mt-1 text-text-light font-medium">
+                                <span className="flex items-center gap-1">
+                                    <Calendar size={16} className="text-primary" /> {trip.dates}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    <MapPin size={16} className="text-primary" /> {trip.cities.length} Cities
+                                </span>
+                            </div>
                         </div>
-                        <div className="flex gap-3">
-                            <Button variant="secondary" onClick={handleShare} className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md">
-                                <Share2 size={18} className="mr-2" /> Share
-                            </Button>
-                            <Button variant="secondary" onClick={handleCopy} className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md">
-                                <Copy size={18} className="mr-2" /> Copy Trip
-                            </Button>
-                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button variant="outline" className="bg-white/80 backdrop-blur-sm border-none shadow-sm flex items-center gap-2">
+                            <Share2 size={18} /> Share
+                        </Button>
+                        <Button variant="primary" className="flex items-center gap-2">
+                            <Settings size={18} /> Design
+                        </Button>
                     </div>
                 </div>
             </div>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                    {/* Main Content: Stops & Itinerary */}
-                    <div className="lg:col-span-2 space-y-8">
-                        <div className="flex items-center justify-between mb-2">
-                            <h2 className="text-2xl font-display font-bold text-text-dark">Itinerary Planner</h2>
-                            <div className="flex items-center gap-3">
-                                <div className="bg-sand/30 p-1 rounded-xl flex">
-                                    <button
-                                        onClick={() => setView('list')}
-                                        className={`p-2 rounded-lg transition-all ${view === 'list' ? 'bg-white text-primary shadow-sm' : 'text-text-light hover:text-text-dark'}`}
-                                    >
-                                        <LayoutGrid size={20} />
-                                    </button>
-                                    <button
-                                        onClick={() => setView('calendar')}
-                                        className={`p-2 rounded-lg transition-all ${view === 'calendar' ? 'bg-white text-primary shadow-sm' : 'text-text-light hover:text-text-dark'}`}
-                                    >
-                                        <CalendarIcon size={20} />
-                                    </button>
-                                </div>
-                                <Button variant="primary" size="sm" onClick={() => setIsCityModalOpen(true)} className="flex items-center gap-2">
-                                    <Plus size={18} /> Add Stop
-                                </Button>
-                            </div>
-                        </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="flex flex-col lg:flex-row gap-8">
 
-                        {view === 'calendar' ? (
-                            <Card className="p-6">
-                                <TripCalendar stops={trip.stops} />
-                            </Card>
-                        ) : trip.stops.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-[32px] shadow-soft border border-sand/30">
-                                <div className="w-20 h-20 bg-sand/10 rounded-full flex items-center justify-center mb-4">
-                                    <MapPin size={40} className="text-primary/50" />
-                                </div>
-                                <h3 className="text-xl font-bold text-text-dark mb-1">No stops yet</h3>
-                                <p className="text-text-light mb-6">Where would you like to go first?</p>
-                                <Button variant="outline" onClick={() => setIsCityModalOpen(true)}>Add Your First Stop</Button>
-                            </div>
-                        ) : (
-                            <div className="space-y-6 relative">
-                                <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gradient-to-b from-primary/30 via-sand/50 to-primary/30" />
-                                {trip.stops.map((stop: any, index: number) => (
-                                    <div key={index} className="relative pl-14">
-                                        <div className="absolute left-0 top-2 w-12 h-12 rounded-full bg-white border-4 border-cream flex items-center justify-center text-primary font-bold shadow-soft z-10">
-                                            {index + 1}
+                    {/* Left Panel: Overview */}
+                    <aside className="lg:w-1/4 space-y-6">
+                        <Card className="p-6 sticky top-24">
+                            <h3 className="text-xl font-bold text-text-dark mb-4">Trip Overview</h3>
+
+                            <div className="space-y-4">
+                                {trip.cities.map((city, idx) => (
+                                    <div key={city.id} className="relative pl-6">
+                                        {/* Connecting Line */}
+                                        {idx !== trip.cities.length - 1 && (
+                                            <div className="absolute left-2.5 top-6 bottom-[-18px] w-0.5 bg-sand" />
+                                        )}
+                                        <div className="absolute left-0 top-1.5 w-5 h-5 rounded-full bg-white border-2 border-primary flex items-center justify-center z-10">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                                         </div>
-                                        <Card className="p-6 hover:shadow-medium transition-all group">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div>
-                                                    <h3 className="text-xl font-bold text-text-dark group-hover:text-primary transition-colors">
-                                                        {stop.cityId?.name || 'Unknown City'}
-                                                    </h3>
-                                                    <p className="text-sm text-text-light flex items-center gap-1.5 mt-1">
-                                                        <CalendarIcon size={14} className="text-primary" />
-                                                        {new Date(stop.startDate).toLocaleDateString()} - {new Date(stop.endDate).toLocaleDateString()}
-                                                    </p>
-                                                </div>
-                                                <button
-                                                    onClick={() => removeStop(index)}
-                                                    className="p-2 text-text-light hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </div>
-
-                                            <div className="bg-sand/10 rounded-2xl p-5 border border-sand/20">
-                                                <div className="flex justify-between items-center mb-4">
-                                                    <h4 className="text-xs font-bold uppercase tracking-wider text-text-light">Activities</h4>
-                                                    <button
-                                                        onClick={() => setIsActivityModalOpen(index)}
-                                                        className="text-sm font-semibold text-primary hover:text-primary-dark transition-colors flex items-center gap-1"
-                                                    >
-                                                        <Plus size={14} /> Add Activity
-                                                    </button>
-                                                </div>
-
-                                                {stop.activities.length === 0 ? (
-                                                    <p className="text-sm text-text-light/70 italic text-center py-4 bg-white/30 rounded-xl border border-dashed border-sand">
-                                                        No activities planned for this stop yet.
-                                                    </p>
-                                                ) : (
-                                                    <div className="space-y-3">
-                                                        {stop.activities.map((act: any, aIdx: number) => (
-                                                            <div key={aIdx} className="flex items-center justify-between bg-white px-4 py-3 rounded-xl shadow-xs border border-sand/10">
-                                                                <div className="flex items-center gap-3">
-                                                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                                                        <Clock size={16} />
-                                                                    </div>
-                                                                    <span className="text-sm font-medium text-text-dark">{act.activityId?.name}</span>
-                                                                </div>
-                                                                <span className="text-sm font-bold text-primary">${act.costOverride || act.activityId?.cost || 0}</span>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </Card>
+                                        <div className="group cursor-pointer">
+                                            <p className="text-sm font-bold text-text-dark group-hover:text-primary transition-colors">{city.name}</p>
+                                            <p className="text-xs text-text-light">{city.dates}</p>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
-                        )}
-                    </div>
 
-                    {/* Sidebar: Budget & Info */}
-                    <aside className="space-y-8">
-                        {/* Budget Card */}
-                        <Card className="p-8 border-none bg-gradient-to-br from-white to-sand/20 shadow-medium">
-                            <h3 className="text-xl font-bold text-text-dark mb-6">Budget Overview</h3>
-                            <BudgetChart data={trip.budget} />
+                            <Button
+                                variant="outline"
+                                fullWidth
+                                className="mt-6 flex items-center justify-center gap-2 hover:bg-sand/20"
+                                onClick={() => setIsSearchModalOpen(true)}
+                            >
+                                <Plus size={18} /> Add City
+                            </Button>
 
-                            <div className="mt-8 space-y-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold uppercase tracking-wider text-text-light ml-1">Accommodation ($)</label>
-                                    <input
-                                        type="number"
-                                        value={trip.budget.accommodation}
-                                        onChange={(e) => setTrip({ ...trip, budget: { ...trip.budget, accommodation: Number(e.target.value) } })}
-                                        className="w-full px-4 py-2 bg-white border border-sand rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium"
-                                    />
+                            <div className="mt-8 pt-6 border-t border-sand">
+                                <p className="text-sm font-semibold text-text-dark mb-3">Trip Stats</p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-sand/10 p-3 rounded-2xl">
+                                        <p className="text-[10px] uppercase tracking-wider text-text-light mb-1">Duration</p>
+                                        <p className="text-lg font-bold text-text-dark">14 Days</p>
+                                    </div>
+                                    <Link to={`/budget/${trip.id}`}>
+                                        <div className="bg-primary/10 p-3 rounded-2xl hover:bg-primary/20 transition-colors cursor-pointer group">
+                                            <p className="text-[10px] uppercase tracking-wider text-primary mb-1">Budget</p>
+                                            <p className="text-lg font-bold text-text-dark group-hover:text-primary transition-colors">₹45,000</p>
+                                        </div>
+                                    </Link>
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold uppercase tracking-wider text-text-light ml-1">Transport ($)</label>
-                                    <input
-                                        type="number"
-                                        value={trip.budget.transport}
-                                        onChange={(e) => setTrip({ ...trip, budget: { ...trip.budget, transport: Number(e.target.value) } })}
-                                        className="w-full px-4 py-2 bg-white border border-sand rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold uppercase tracking-wider text-text-light ml-1">Meals ($)</label>
-                                    <input
-                                        type="number"
-                                        value={trip.budget.meals}
-                                        onChange={(e) => setTrip({ ...trip, budget: { ...trip.budget, meals: Number(e.target.value) } })}
-                                        className="w-full px-4 py-2 bg-white border border-sand rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium"
-                                    />
-                                </div>
-
-                                <div className="flex items-center justify-between py-2 px-1">
-                                    <span className="text-sm font-medium text-text-light">Activities</span>
-                                    <span className="text-sm font-bold text-text-dark">${trip.budget.activities}</span>
-                                </div>
-
-                                <div className="h-px bg-sand/30 my-4" />
-
-                                <div className="flex items-center justify-between mb-6">
-                                    <span className="text-lg font-bold text-text-dark">Total Budget</span>
-                                    <span className="text-2xl font-display font-bold text-primary">${
-                                        trip.budget.accommodation + trip.budget.transport + trip.budget.meals + trip.budget.activities
-                                    }</span>
-                                </div>
-
-                                <Button
-                                    variant="primary"
-                                    fullWidth
-                                    onClick={async () => {
-                                        try {
-                                            const res = await api.put(`/trips/${id}/budget`, { budget: trip.budget });
-                                            setTrip(res.data);
-                                            alert('Budget updated!');
-                                        } catch (err) {
-                                            alert('Failed to update budget');
-                                        }
-                                    }}
-                                    className="shadow-lg"
-                                >
-                                    Save Budget Changes
-                                </Button>
-                            </div>
-                        </Card>
-
-                        {/* Useful Links / Info */}
-                        <Card className="p-6 bg-primary/5 border-none">
-                            <h4 className="font-bold text-text-dark mb-4 flex items-center gap-2">
-                                <Search size={18} className="text-primary" /> Quick Links
-                            </h4>
-                            <div className="space-y-2">
-                                <Link to={`/budget/${id}`} className="block p-3 rounded-xl bg-white hover:bg-sand/30 transition-all text-sm font-medium text-text-dark shadow-xs flex items-center justify-between group">
-                                    Manage Detailed Budget <DollarSign size={14} className="text-text-light group-hover:text-primary" />
-                                </Link>
-                                <Link to={`/timeline/${id}`} className="block p-3 rounded-xl bg-white hover:bg-sand/30 transition-all text-sm font-medium text-text-dark shadow-xs flex items-center justify-between group">
-                                    View Detailed Timeline <Clock size={14} className="text-text-light group-hover:text-primary" />
-                                </Link>
-                                <Link to={`/public/itinerary/${id}`} className="block p-3 rounded-xl bg-white hover:bg-sand/30 transition-all text-sm font-medium text-text-dark shadow-xs flex items-center justify-between group">
-                                    Public Share Page <ExternalLink size={14} className="text-text-light group-hover:text-primary" />
-                                </Link>
                             </div>
                         </Card>
                     </aside>
+
+                    {/* Main Content: Itinerary Timeline */}
+                    <main className="lg:w-3/4 space-y-10">
+                        {trip.cities.map((city) => (
+                            <div key={city.id} className="space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-2xl font-display font-bold text-text-dark flex items-center gap-3">
+                                        <div className="p-2 bg-primary/10 rounded-xl">
+                                            <MapPin className="text-primary" size={24} />
+                                        </div>
+                                        {city.name}
+                                        <span className="text-sm font-normal text-text-light bg-sand/20 px-3 py-1 rounded-full ml-2">
+                                            {city.dates}
+                                        </span>
+                                    </h2>
+                                    <Button variant="ghost" size="sm" className="text-text-light hover:text-primary">
+                                        <Edit2 size={16} />
+                                    </Button>
+                                </div>
+
+                                {/* Trip Timeline Component */}
+                                <div className="mt-6">
+                                    <TripTimeline
+                                        tripData={{ days: city.days as any }}
+                                        title="Itinerary"
+                                        onAddActivity={(dayNumber) => {
+                                            // Show choice between activity and train
+                                            setSelectedDayForActivity(dayNumber);
+                                            setSelectedCityForActivity(city.name);
+                                            setIsActivityModalOpen(true);
+                                        }}
+                                        onEditActivity={(activity) => console.log("Edit", activity)}
+                                        onDeleteActivity={(id) => handleDelete(id)}
+                                    />
+                                    <div className="mt-4 flex gap-3">
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            className="flex items-center gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200"
+                                            onClick={() => {
+                                                setSelectedDayForActivity(city.days[0].day); // Just an example
+                                                setIsTrainModalOpen(true);
+                                            }}
+                                        >
+                                            <Train size={16} /> Add Train Journey
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+
+                        {/* End of Timeline Action */}
+                        <div className="flex justify-center pt-8">
+                            <Button
+                                variant="primary"
+                                size="lg"
+                                className="px-8 flex items-center gap-2 shadow-medium"
+                                onClick={() => setIsSearchModalOpen(true)}
+                            >
+                                <Plus size={20} /> Add Next Destination
+                            </Button>
+                        </div>
+                    </main>
+
                 </div>
-            </main>
+            </div>
 
             {/* Modals */}
             <CitySearchModal
-                isOpen={isCityModalOpen}
-                onClose={() => setIsCityModalOpen(false)}
-                onAddCity={addStop}
+                isOpen={isSearchModalOpen}
+                onClose={() => setIsSearchModalOpen(false)}
+                onAddCity={handleAddCity}
             />
-
-            {isActivityModalOpen !== null && (
-                <ActivitySelectionModal
-                    isOpen={isActivityModalOpen !== null}
-                    onClose={() => setIsActivityModalOpen(null)}
-                    onAddActivity={addActivity}
-                    cityName={trip.stops[isActivityModalOpen]?.cityId?.name || "this city"}
-                    stop={trip.stops[isActivityModalOpen]}
-                />
-            )}
+            <ActivitySelectionModal
+                isOpen={isActivityModalOpen}
+                onClose={() => setIsActivityModalOpen(false)}
+                onAddActivity={handleAddActivity}
+                cityName={selectedCityForActivity || "India"}
+            />
+            <TrainSearchModal
+                isOpen={isTrainModalOpen}
+                onClose={() => setIsTrainModalOpen(false)}
+                onAddTrain={handleAddTrainJourney}
+            />
         </div>
     );
 };
+
+// Internal Edit2 helper for the city title
+const Edit2 = ({ size }) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+        <path d="m15 5 4 4" />
+    </svg>
+);
 
 export default ItineraryPage;

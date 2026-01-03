@@ -1,11 +1,9 @@
-import React, { ButtonHTMLAttributes, ReactNode } from 'react';
+import React from 'react';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-    children: ReactNode;
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'accent';
     size?: 'sm' | 'md' | 'lg';
     fullWidth?: boolean;
-    className?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({

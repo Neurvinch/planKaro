@@ -1,218 +1,222 @@
-import React, { useEffect, useState } from 'react';
-import { useAuthStore } from '../store/authStore';
-import api from '../services/api';
-import { Plus, MapPin, Calendar, Trash2, Search, Eye } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Plus, MapPin, Calendar, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import { Link } from 'react-router-dom';
 
-const DashboardPage: React.FC = () => {
-    const { user, logout } = useAuthStore();
-    const [trips, setTrips] = useState<any[]>([]);
+interface Trip {
+    id: number;
+    name: string;
+    dates: string;
+    cities: number;
+    image: string;
+    status: string;
+}
+
+const DashboardPage = () => {
     const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState('');
-    const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchTrips = async () => {
-            try {
-                const res = await api.get('/trips');
-                setTrips(res.data);
-            } catch (err) {
-                console.error('Failed to fetch trips', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchTrips();
-    }, []);
-
-    const deleteTrip = async (id: string) => {
-        if (!window.confirm('Are you sure you want to delete this trip?')) return;
-        try {
-            await api.delete(`/trips/${id}`);
-            setTrips(trips.filter(t => t._id !== id));
-        } catch (err) {
-            alert('Failed to delete trip');
-        }
+    // Mock User Data
+    const user = {
+        name: "Alex",
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
     };
 
-    const filteredTrips = trips.filter(trip =>
-        trip.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        trip.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([]);
+
+    useEffect(() => {
+        // Load trips from localStorage or use defaults
+        const savedTrips = localStorage.getItem('planKaro_trips');
+        let trips = [];
+
+        if (savedTrips) {
+            trips = JSON.parse(savedTrips);
+        } else {
+            // Default mock trips if storage is empty
+            trips = [
+                {
+                    id: 1,
+                    name: "Royal Rajasthan Tour",
+                    dates: "Nov 10 - Nov 20",
+                    cities: 3,
+                    image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&q=80&w=800",
+                    status: "Upcoming"
+                },
+                {
+                    id: 2,
+                    name: "Weekend in Goa",
+                    dates: "Dec 05 - Dec 08",
+                    cities: 1,
+                    image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&q=80&w=800",
+                    status: "Upcoming"
+                }
+            ];
+            // Sync default to local storage so other pages see it
+            localStorage.setItem('planKaro_trips', JSON.stringify(trips));
+        }
+
+        // Filter for upcoming trips and take first 3
+        const upcoming = trips.filter(t => t.status === 'Upcoming' || t.status === 'Planning').slice(0, 3);
+        setUpcomingTrips(upcoming);
+
+        // Simulate loading
+        const timer = setTimeout(() => setLoading(false), 1000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Mock Popular Destinations
+    const popularDestinations = [
+        { id: 1, name: "Jaipur, Rajasthan", image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&q=80&w=600" },
+        { id: 2, name: "Munnar, Kerala", image: "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?auto=format&fit=crop&q=80&w=600" },
+        { id: 3, name: "Varanasi, UP", image: "https://images.unsplash.com/photo-1561361513-2d000a45f0dc?auto=format&fit=crop&q=80&w=600" },
+        { id: 4, name: "Leh, Ladakh", image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&q=80&w=600" },
+    ];
+
+
+
+    const SkeletonCard = () => (
+        <div className="bg-white rounded-[28px] p-4 shadow-soft animate-pulse h-[280px]">
+            <div className="h-40 bg-sand/30 rounded-[20px] mb-4"></div>
+            <div className="h-6 bg-sand/30 rounded w-3/4 mb-3"></div>
+            <div className="h-4 bg-sand/30 rounded w-1/2"></div>
+        </div>
     );
 
     return (
         <div className="min-h-screen bg-cream">
-            <Navbar user={user ? { name: user.name, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.name } : null} />
+            <Navbar user={user} />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Welcome Section */}
+                <div className="flex justify-between items-end mb-10">
                     <div>
-                        <h1 className="text-4xl font-display font-bold text-text-dark">Welcome back, {user?.name}!</h1>
-                        <p className="mt-1 text-text-light text-lg">Where is your next adventure taking you?</p>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <div className="relative hidden md:block">
-                            <input
-                                type="text"
-                                placeholder="Search your trips..."
-                                className="pl-10 pr-4 py-2 bg-white/50 border border-sand rounded-[20px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all w-64 text-sm"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-text-light" />
-                        </div>
-                        <Link to="/create-trip">
-                            <Button variant="primary" className="flex items-center gap-2 shadow-lg">
-                                <Plus size={18} />
-                                Plan New Trip
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
-
-                {/* Statistics Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-none shadow-soft">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
-                                <MapPin size={24} />
-                            </div>
-                            <div>
-                                <p className="text-sm text-text-light uppercase tracking-wider font-semibold">Total Trips</p>
-                                <h3 className="text-3xl font-bold text-text-dark">{trips.length}</h3>
-                            </div>
-                        </div>
-                    </Card>
-                    <Card className="p-6 bg-gradient-to-br from-secondary/10 to-secondary/5 border-none shadow-soft">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-secondary/20 flex items-center justify-center text-secondary">
-                                <Calendar size={24} />
-                            </div>
-                            <div>
-                                <p className="text-sm text-text-light uppercase tracking-wider font-semibold">Days Traveled</p>
-                                <h3 className="text-3xl font-bold text-text-dark">
-                                    {trips.reduce((acc, trip) => {
-                                        const start = new Date(trip.startDate);
-                                        const end = new Date(trip.endDate);
-                                        return acc + Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-                                    }, 0)}
-                                </h3>
-                            </div>
-                        </div>
-                    </Card>
-                    <Card className="p-6 bg-gradient-to-br from-accent/10 to-accent/5 border-none shadow-soft">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-accent/20 flex items-center justify-center text-accent">
-                                <Search size={24} />
-                            </div>
-                            <div>
-                                <p className="text-sm text-text-light uppercase tracking-wider font-semibold">Countries Visited</p>
-                                <h3 className="text-3xl font-bold text-text-dark">
-                                    {/* Mock calculation for countries */}
-                                    {Math.floor(trips.length * 1.2)}
-                                </h3>
-                            </div>
-                        </div>
-                    </Card>
-                </div>
-
-                {/* Trips Grid */}
-                <h2 className="text-2xl font-display font-bold text-text-dark mb-6">Recent Adventures</h2>
-                {loading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="h-[400px] rounded-[28px] bg-sand/20 animate-pulse" />
-                        ))}
-                    </div>
-                ) : filteredTrips.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {filteredTrips.map((trip) => (
-                            <Card key={trip._id} className="group p-4 hover:shadow-medium transition-all duration-300">
-                                {/* Image Placeholder or Image */}
-                                <div className="relative h-48 mb-4 overflow-hidden rounded-[20px] bg-sand/30">
-                                    <img
-                                        src={`https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=800&seed=${trip._id}`}
-                                        alt={trip.name}
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                    />
-                                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-primary shadow-sm">
-                                        {trip.stops?.length || 0} {trip.stops?.length === 1 ? 'Stop' : 'Stops'}
-                                    </div>
-                                    <div className="absolute top-3 left-3 bg-primary/90 text-white backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
-                                        Upcoming
-                                    </div>
-                                </div>
-
-                                {/* Content */}
-                                <div className="space-y-3">
-                                    <div>
-                                        <h3 className="text-xl font-bold text-text-dark group-hover:text-primary transition-colors truncate">
-                                            {trip.name}
-                                        </h3>
-                                        <p className="text-sm text-text-light line-clamp-2 mt-1">
-                                            {trip.description || "No description provided."}
-                                        </p>
-                                    </div>
-
-                                    <div className="flex items-center text-text-light text-sm bg-sand/10 py-2 px-3 rounded-[12px]">
-                                        <Calendar size={14} className="mr-2 text-primary" />
-                                        {new Date(trip.startDate).toLocaleDateString()} - {new Date(trip.endDate).toLocaleDateString()}
-                                    </div>
-
-                                    {/* Action Buttons */}
-                                    <div className="pt-4 mt-2 border-t border-sand flex items-center justify-between gap-2">
-                                        <Link to={`/trip/${trip._id}`} className="flex-1">
-                                            <Button variant="secondary" className="w-full h-10 px-0 flex items-center justify-center gap-2 text-sm !rounded-[14px]">
-                                                <Eye size={16} /> View
-                                            </Button>
-                                        </Link>
-                                        <button
-                                            onClick={() => deleteTrip(trip._id)}
-                                            className="h-10 w-10 flex items-center justify-center rounded-[14px] bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </div>
-                                </div>
-                            </Card>
-                        ))}
-
-                        {/* Add New Trip Card */}
-                        <Link to="/create-trip" className="block h-full">
-                            <div className="h-full min-h-[400px] rounded-[28px] border-2 border-dashed border-sand hover:border-primary/50 bg-sand/5 flex flex-col items-center justify-center text-center p-6 transition-all cursor-pointer group hover:bg-sand/10">
-                                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-soft mb-4 group-hover:scale-110 transition-transform">
-                                    <Plus size={32} className="text-primary" />
-                                </div>
-                                <h3 className="text-lg font-semibold text-text-dark mb-1">Create New Trip</h3>
-                                <p className="text-text-light text-sm">Start your next journey here</p>
-                            </div>
-                        </Link>
-                    </div>
-                ) : (
-                    /* Empty State */
-                    <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-[32px] shadow-soft border border-sand/30">
-                        <div className="w-64 h-64 bg-sand/20 rounded-full flex items-center justify-center mb-8 relative">
-                            <MapPin size={80} className="text-primary opacity-50 absolute animate-bounce" />
-                            <div className="w-48 h-48 bg-white/50 rounded-full absolute animate-pulse" />
-                        </div>
-                        <h2 className="text-2xl font-bold text-text-dark mb-2">No trips planned yet</h2>
-                        <p className="text-text-light mb-8 max-w-md mx-auto">
-                            Your dashboard is looking a bit empty. Why not start planning your next great adventure right now?
+                        <h1 className="text-3xl md:text-4xl font-display font-bold text-text-dark">
+                            Welcome back, {user.name} 👋
+                        </h1>
+                        <p className="mt-2 text-text-light text-lg">
+                            Ready to plan your next adventure?
                         </p>
-                        <Link to="/create-trip">
-                            <Button variant="primary" className="flex items-center gap-2 px-8 py-3">
-                                <Plus size={20} />
-                                Plan Your First Trip
-                            </Button>
+                    </div>
+                    <Link to="/create-trip" className="hidden sm:block">
+                        <Button variant="primary" className="flex items-center gap-2">
+                            <Plus size={20} />
+                            Plan New Trip
+                        </Button>
+                    </Link>
+                </div>
+
+                {/* Mobile CTA */}
+                <div className="sm:hidden mb-10">
+                    <Link to="/create-trip">
+                        <Button variant="primary" fullWidth className="flex items-center justify-center gap-2">
+                            <Plus size={20} />
+                            Plan New Trip
+                        </Button>
+                    </Link>
+                </div>
+
+                {/* Upcoming Trips */}
+                <section className="mb-12">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-display font-semibold text-text-dark">Upcoming Trips</h2>
+                        <Link to="/my-trips" className="text-primary font-medium hover:text-primary-dark transition-colors flex items-center gap-1">
+                            View all <ArrowRight size={16} />
                         </Link>
                     </div>
-                )}
-            </div>
+
+                    {/* Staggered Grid */}
+                    <motion.div
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                        initial="hidden"
+                        animate="visible"
+                        variants={{
+                            hidden: { opacity: 0 },
+                            visible: {
+                                opacity: 1,
+                                transition: {
+                                    staggerChildren: 0.15
+                                }
+                            }
+                        }}
+                    >
+                        {loading ? (
+                            <>
+                                <SkeletonCard />
+                                <SkeletonCard />
+                                <SkeletonCard />
+                            </>
+                        ) : (
+                            upcomingTrips.map((trip) => (
+                                <motion.div key={trip.id} variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+                                    <Link to={`/itinerary/${trip.id}`} className="block h-full">
+                                        <Card className="p-4 hover:shadow-medium transition-shadow cursor-pointer group h-full">
+                                            <div className="relative h-48 mb-4 overflow-hidden rounded-[20px]">
+                                                <img
+                                                    src={trip.image}
+                                                    alt={trip.name}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                />
+                                                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-primary">
+                                                    {trip.cities} Cities
+                                                </div>
+                                            </div>
+                                            <h3 className="text-xl font-bold text-text-dark mb-2 group-hover:text-primary transition-colors">
+                                                {trip.name}
+                                            </h3>
+                                            <div className="flex items-center text-text-light text-sm">
+                                                <Calendar size={16} className="mr-2 text-primary" />
+                                                {trip.dates}
+                                            </div>
+                                        </Card>
+                                    </Link>
+                                </motion.div>
+                            ))
+                        )}
+
+                        {!loading && (
+                            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+                                <Link to="/create-trip" className="block h-full">
+                                    <Card noHover className="h-full min-h-[280px] rounded-[28px] border-2 border-dashed border-sand hover:border-primary/50 bg-sand/10 flex flex-col items-center justify-center text-center p-6 transition-all cursor-pointer group !shadow-none hover:bg-sand/20">
+                                        <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-soft mb-4 group-hover:scale-110 transition-transform">
+                                            <Plus size={32} className="text-primary" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-text-dark mb-1">Create New Trip</h3>
+                                        <p className="text-text-light text-sm">Start planning your next journey</p>
+                                    </Card>
+                                </Link>
+                            </motion.div>
+                        )}
+                    </motion.div>
+                </section>
+
+                {/* Popular Destinations */}
+                <section>
+                    <h2 className="text-2xl font-display font-semibold text-text-dark mb-6">Popular Destinations</h2>
+                    <div className="flex overflow-x-auto gap-6 pb-6 snap-x snap-mandatory hide-scrollbar">
+                        {popularDestinations.map((dest) => (
+                            <div key={dest.id} className="min-w-[280px] md:min-w-[320px] snap-center">
+                                <div className="relative h-[400px] rounded-[32px] overflow-hidden group cursor-pointer shadow-soft hover:shadow-medium transition-all">
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
+                                    <img
+                                        src={dest.image}
+                                        alt={dest.name}
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    />
+                                    <div className="absolute bottom-6 left-6 z-20 text-white">
+                                        <h3 className="text-2xl font-bold font-display mb-1">{dest.name}</h3>
+                                        <div className="flex items-center text-white/90 text-sm">
+                                            <MapPin size={16} className="mr-1" />
+                                            Explore Guide
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            </main>
         </div>
     );
 };

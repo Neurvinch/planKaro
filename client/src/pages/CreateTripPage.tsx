@@ -1,171 +1,203 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import { Calendar, AlignLeft, Send, ArrowLeft, MapPin } from 'lucide-react';
-import { useAuthStore } from '../store/authStore';
+import { Calendar, Image as ImageIcon, Upload, X } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
 
-const CreateTripPage: React.FC = () => {
-    const { user } = useAuthStore();
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+const CreateTripPage = () => {
+    const [formData, setFormData] = useState({
+        tripName: '',
+        startDate: '',
+        endDate: '',
+        description: '',
+        coverPhoto: null,
+    });
+    const [previewUrl, setPreviewUrl] = useState(null);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            const res = await api.post('/trips', { name, description, startDate, endDate });
-            navigate(`/trip/${res.data._id}`);
-        } catch (err) {
-            alert('Failed to create trip');
-        } finally {
-            setLoading(false);
+    // Mock User for Navbar
+    const user = {
+        name: "Alex",
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData({ ...formData, coverPhoto: file });
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
+    const removeImage = () => {
+        setFormData({ ...formData, coverPhoto: null });
+        setPreviewUrl(null);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log('Trip Data:', formData);
+        // Add logic to save trip
+    };
+
     return (
-        <div className="min-h-screen bg-cream">
-            <Navbar user={user ? { name: user.name, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.name } : null} />
+        <div className="min-h-screen bg-cream pb-12">
+            <Navbar user={user} />
 
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-text-light hover:text-primary transition-colors mb-8 font-medium"
-                >
-                    <ArrowLeft size={18} />
-                    Back to Dashboard
-                </button>
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div className="mb-8 text-center">
+                    <h1 className="text-3xl font-display font-bold text-text-dark">Plan a New Trip</h1>
+                    <p className="mt-2 text-text-light">Start your adventure by filling in the details below.</p>
+                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-                    {/* Form Section */}
-                    <div className="lg:col-span-3">
-                        <h1 className="text-4xl font-display font-bold text-text-dark mb-4">Start a New Adventure</h1>
-                        <p className="text-text-light text-lg mb-8">Fill in the details below to begin planning your dream journey.</p>
+                <Card>
+                    <form onSubmit={handleSubmit} className="space-y-8">
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-text-dark ml-1">Trip Name</label>
-                                <div className="relative">
-                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" size={20} />
-                                    <input
-                                        type="text"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        required
-                                        placeholder="e.g. Summer in Europe 2024"
-                                        className="w-full pl-12 pr-4 py-4 bg-white border border-sand rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text-dark shadow-soft"
-                                    />
-                                </div>
+                        {/* Step 1: Trip Details */}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">1</div>
+                                <h3 className="text-lg font-semibold text-text-dark">Trip Details</h3>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-text-dark ml-1">Description (Optional)</label>
-                                <div className="relative">
-                                    <AlignLeft className="absolute left-4 top-4 text-primary" size={20} />
-                                    <textarea
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        placeholder="What's the vibe of this trip? Exploratory, relaxing, cultural?"
-                                        className="w-full pl-12 pr-4 py-4 bg-white border border-sand rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text-dark shadow-soft min-h-[120px]"
-                                    />
-                                </div>
+                            <div>
+                                <label htmlFor="tripName" className="block text-sm font-medium text-text-dark mb-1">
+                                    Trip Name
+                                </label>
+                                <input
+                                    type="text"
+                                    id="tripName"
+                                    name="tripName"
+                                    required
+                                    placeholder="e.g. Summer in Kerala"
+                                    value={formData.tripName}
+                                    onChange={handleChange}
+                                    className="block w-full px-4 py-2.5 bg-sand/30 border border-sand rounded-[16px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm placeholder-text-light/50"
+                                />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-text-dark ml-1">Departure Date</label>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label htmlFor="startDate" className="block text-sm font-medium text-text-dark mb-1">
+                                        Start Date
+                                    </label>
                                     <div className="relative">
-                                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" size={20} />
                                         <input
                                             type="date"
-                                            value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
+                                            id="startDate"
+                                            name="startDate"
                                             required
-                                            className="w-full pl-12 pr-4 py-4 bg-white border border-sand rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text-dark shadow-soft"
+                                            value={formData.startDate}
+                                            onChange={handleChange}
+                                            className="block w-full px-4 py-2.5 bg-sand/30 border border-sand rounded-[16px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm text-text-light"
                                         />
+                                        <Calendar className="absolute right-3 top-2.5 h-5 w-5 text-text-light pointer-events-none" />
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-text-dark ml-1">Return Date</label>
+
+                                <div>
+                                    <label htmlFor="endDate" className="block text-sm font-medium text-text-dark mb-1">
+                                        End Date
+                                    </label>
                                     <div className="relative">
-                                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" size={20} />
                                         <input
                                             type="date"
-                                            value={endDate}
-                                            onChange={(e) => setEndDate(e.target.value)}
+                                            id="endDate"
+                                            name="endDate"
                                             required
-                                            className="w-full pl-12 pr-4 py-4 bg-white border border-sand rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text-dark shadow-soft"
+                                            value={formData.endDate}
+                                            onChange={handleChange}
+                                            className="block w-full px-4 py-2.5 bg-sand/30 border border-sand rounded-[16px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm text-text-light"
                                         />
+                                        <Calendar className="absolute right-3 top-2.5 h-5 w-5 text-text-light pointer-events-none" />
                                     </div>
                                 </div>
                             </div>
 
-                            <Button
-                                type="submit"
-                                variant="primary"
-                                fullWidth
-                                disabled={loading}
-                                className="py-4 text-lg shadow-lg"
-                            >
-                                {loading ? (
-                                    <span className="flex items-center gap-2">
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        Creating...
-                                    </span>
-                                ) : (
-                                    <span className="flex items-center gap-2">
-                                        Let's Go!
-                                        <Send size={20} />
-                                    </span>
-                                )}
-                            </Button>
-                        </form>
-                    </div>
-
-                    {/* Info Section */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <Card className="p-8 bg-primary/5 border-none shadow-soft">
-                            <h3 className="text-xl font-bold text-text-dark mb-4">Why Plan with PlanKaro?</h3>
-                            <ul className="space-y-4">
-                                <li className="flex gap-3">
-                                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-0.5">
-                                        <div className="w-2 h-2 rounded-full bg-primary" />
-                                    </div>
-                                    <p className="text-sm text-text-light">Add multiple cities and activities to your timeline seamlessly.</p>
-                                </li>
-                                <li className="flex gap-3">
-                                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-0.5">
-                                        <div className="w-2 h-2 rounded-full bg-primary" />
-                                    </div>
-                                    <p className="text-sm text-text-light">Automatically calculate and track your trip budget.</p>
-                                </li>
-                                <li className="flex gap-3">
-                                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-0.5">
-                                        <div className="w-2 h-2 rounded-full bg-primary" />
-                                    </div>
-                                    <p className="text-sm text-text-light">Share your beautiful itinerary with friends and family.</p>
-                                </li>
-                            </ul>
-                        </Card>
-
-                        <div className="relative h-64 rounded-[32px] overflow-hidden shadow-medium group">
-                            <img
-                                src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80&w=800"
-                                alt="Travel"
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-                                <p className="text-white font-medium text-sm italic italic">"Travel is the only thing you buy that makes you richer."</p>
+                            <div>
+                                <label htmlFor="description" className="block text-sm font-medium text-text-dark mb-1">
+                                    Description
+                                </label>
+                                <textarea
+                                    id="description"
+                                    name="description"
+                                    rows={4}
+                                    placeholder="What are you planning? (optional)"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    className="block w-full px-4 py-2.5 bg-sand/30 border border-sand rounded-[16px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm resize-none placeholder-text-light/50"
+                                />
                             </div>
                         </div>
-                    </div>
-                </div>
+
+                        <div className="border-t border-slate-100 dark:border-slate-700" />
+
+                        {/* Step 2: Cover Photo */}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">2</div>
+                                <h3 className="text-lg font-semibold text-text-dark">Cover Photo</h3>
+                            </div>
+
+                            <div className="flex justify-center rounded-[20px] border-2 border-dashed border-sand bg-sand/10 px-6 py-10 hover:border-primary/50 transition-colors relative group">
+                                {previewUrl ? (
+                                    <div className="relative w-full h-64">
+                                        <img
+                                            src={previewUrl}
+                                            alt="Cover Preview"
+                                            className="w-full h-full object-cover rounded-[16px] shadow-sm"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={removeImage}
+                                            className="absolute top-2 right-2 bg-white/90 p-1.5 rounded-full shadow-md text-text-light hover:text-accent transition-colors"
+                                        >
+                                            <X size={20} />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="text-center">
+                                        <div className="mx-auto h-12 w-12 text-sand-dark">
+                                            <ImageIcon className="h-12 w-12 text-text-light/50" />
+                                        </div>
+                                        <div className="mt-4 flex text-sm leading-6 text-text-light justify-center">
+                                            <label
+                                                htmlFor="file-upload"
+                                                className="relative cursor-pointer rounded-md font-semibold text-primary focus-within:outline-none hover:text-primary-dark"
+                                            >
+                                                <span>Upload a file</span>
+                                                <input
+                                                    id="file-upload"
+                                                    name="file-upload"
+                                                    type="file"
+                                                    className="sr-only"
+                                                    accept="image/*"
+                                                    onChange={handleImageChange}
+                                                />
+                                            </label>
+                                            <p className="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p className="text-xs leading-5 text-text-light/70">PNG, JPG, GIF up to 10MB</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="pt-6 border-t border-sand flex justify-end gap-3">
+                            <Button variant="ghost" type="button" className="hover:bg-sand/30">Cancel</Button>
+                            <Button type="submit">Save Trip</Button>
+                        </div>
+
+                    </form>
+                </Card>
             </div>
         </div>
     );

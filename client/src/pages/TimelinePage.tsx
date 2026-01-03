@@ -13,171 +13,124 @@ const TimelinePage: React.FC = () => {
 
     // Mock trip data with activities
     const tripData = {
-        tripName: "Summer in Japan",
+        tripName: "Kerala Backwaters & Hills",
         days: [
             {
                 day: 1,
-                date: "July 10, 2024",
+                date: "Dec 10, 2024",
                 activities: [
                     {
                         id: 'a1',
                         time: "10:00 AM",
-                        title: "Arrival at Narita Airport",
+                        title: "Arrival at Kochi Airport",
                         type: "Transport",
-                        location: "Narita, Tokyo",
-                        cost: 140
+                        location: "Kochi, Kerala",
+                        cost: 1500
                     },
                     {
                         id: 'a2',
                         time: "02:00 PM",
-                        title: "Check-in at Tokyo Station Hotel",
+                        title: "Check-in at Fort Kochi Hotel",
                         type: "Stay",
-                        location: "Chiyoda, Tokyo",
-                        cost: 250
+                        location: "Fort Kochi",
+                        cost: 4500
                     },
                     {
                         id: 'a3',
-                        time: "06:00 PM",
-                        title: "Dinner at Shinjuku Golden Gai",
-                        type: "Food",
-                        location: "Shinjuku, Tokyo",
-                        cost: 45
+                        time: "05:30 PM",
+                        title: "Chinese Fishing Nets Sunset",
+                        type: "Culture",
+                        location: "Fort Kochi Beach",
+                        cost: 0
                     }
                 ]
             },
             {
                 day: 2,
-                date: "July 11, 2024",
+                date: "Dec 11, 2024",
                 activities: [
                     {
                         id: 'a4',
                         time: "09:00 AM",
-                        title: "TeamLab Borderless Digital Art Museum",
-                        type: "Culture",
-                        location: "Odaiba, Tokyo",
-                        cost: 35
+                        title: "Drive to Munnar",
+                        type: "Transport",
+                        location: "Kochi → Munnar",
+                        cost: 3500
                     },
                     {
                         id: 'a5',
-                        time: "01:00 PM",
-                        title: "Lunch in Odaiba",
-                        type: "Food",
-                        location: "Odaiba, Tokyo",
-                        cost: 25
-                    },
-                    {
-                        id: 'a6',
-                        time: "04:00 PM",
-                        title: "Explore Shibuya Crossing",
+                        time: "02:00 PM",
+                        title: "Tea Museum Visit",
                         type: "Culture",
-                        location: "Shibuya, Tokyo"
+                        location: "Munnar",
+                        cost: 500
                     }
                 ]
             },
             {
                 day: 3,
-                date: "July 12, 2024",
+                date: "Dec 12, 2024",
                 activities: [
                     {
+                        id: 'a6',
+                        time: "06:00 AM",
+                        title: "Sunrise Trek at Lakshmi Hills",
+                        type: "Adventure",
+                        location: "Munnar",
+                        cost: 1200
+                    },
+                    {
                         id: 'a7',
-                        time: "08:00 AM",
-                        title: "Tsukiji Outer Market Tour",
-                        type: "Food",
-                        location: "Chuo, Tokyo",
-                        cost: 30
-                    },
-                    {
-                        id: 'a8',
                         time: "11:00 AM",
-                        title: "Senso-ji Temple Visit",
-                        type: "Culture",
-                        location: "Asakusa, Tokyo"
-                    },
-                    {
-                        id: 'a9',
-                        time: "03:00 PM",
-                        title: "Tokyo Skytree Observatory",
-                        type: "Culture",
-                        location: "Sumida, Tokyo",
-                        cost: 25
+                        title: "Mattupetty Dam Boating",
+                        type: "Adventure",
+                        location: "Munnar",
+                        cost: 800
                     }
                 ]
             },
             {
                 day: 4,
-                date: "July 13, 2024",
+                date: "Dec 13, 2024",
                 activities: [
                     {
-                        id: 'a10',
-                        time: "10:00 AM",
-                        title: "Mt. Fuji Day Trip",
-                        type: "Adventure",
-                        location: "Mt. Fuji",
-                        cost: 120
+                        id: 'a8',
+                        time: "09:00 AM",
+                        title: "Drive to Alleppey",
+                        type: "Transport",
+                        location: "Munnar → Alleppey",
+                        cost: 4000
                     },
                     {
-                        id: 'a11',
-                        time: "07:00 PM",
-                        title: "Return to Tokyo",
-                        type: "Transport",
-                        location: "Tokyo"
+                        id: 'a9',
+                        time: "01:00 PM",
+                        title: "Houseboat Check-in",
+                        type: "Stay",
+                        location: "Alleppey Backwaters",
+                        cost: 12000
                     }
                 ]
             },
             {
                 day: 5,
-                date: "July 14, 2024",
+                date: "Dec 14, 2024",
                 activities: [
                     {
-                        id: 'a12',
-                        time: "09:00 AM",
-                        title: "Harajuku Street Fashion Tour",
-                        type: "Culture",
-                        location: "Harajuku, Tokyo"
+                        id: 'a10',
+                        time: "08:00 AM",
+                        title: "Backwater Morning Cruise",
+                        type: "Adventure",
+                        location: "Alleppey"
                     },
                     {
-                        id: 'a13',
+                        id: 'a11',
                         time: "12:00 PM",
-                        title: "Ramen Tasting Tour",
+                        title: "Traditional Sadya Lunch",
                         type: "Food",
-                        location: "Shinjuku, Tokyo",
-                        cost: 60
+                        location: "Alleppey Town",
+                        cost: 600
                     }
                 ]
-            },
-            {
-                day: 6,
-                date: "July 15, 2024",
-                activities: [
-                    {
-                        id: 'a14',
-                        time: "11:00 AM",
-                        title: "Shinkansen to Kyoto",
-                        type: "Transport",
-                        location: "Tokyo → Kyoto",
-                        cost: 140
-                    },
-                    {
-                        id: 'a15',
-                        time: "03:00 PM",
-                        title: "Fushimi Inari-taisha Shrine",
-                        type: "Culture",
-                        location: "Fushimi, Kyoto"
-                    },
-                    {
-                        id: 'a16',
-                        time: "06:00 PM",
-                        title: "Traditional Kaiseki Dinner",
-                        type: "Food",
-                        location: "Gion, Kyoto",
-                        cost: 85
-                    }
-                ]
-            },
-            {
-                day: 7,
-                date: "July 16, 2024",
-                activities: []
             }
         ]
     };
