@@ -1,0 +1,28 @@
+services:
+  # Backend API Service
+  - type: web
+    name: plankaro-server
+    runtime: bun
+    region: oregon # Change to your preferred region
+    plan: free
+    buildCommand: "cd server && bun install"
+    startCommand: "cd server && bun run start"
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI # User must set this in Render Dashboard
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+
+  # Frontend Static Site
+  - type: static
+    name: plankaro-client
+    runtime: bun
+    region: oregon
+    plan: free
+    buildCommand: "cd client && bun install && bun run build"
+    staticPublishDir: "client/dist"
+    envVars:
+      - key: VITE_API_URL
+        value: https://plankaro-server.onrender.com/api # Replace with your actual backend URL after first deploy
