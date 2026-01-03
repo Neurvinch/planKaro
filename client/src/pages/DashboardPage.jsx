@@ -14,25 +14,47 @@ const DashboardPage = () => {
         avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
     };
 
-    // Mock Trips Data
-    const upcomingTrips = [
-        {
-            id: 1,
-            name: "Summer in Japan",
-            dates: "Jul 10 - Jul 24",
-            cities: 3,
-            image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800",
-            status: "upcoming"
-        },
-        {
-            id: 2,
-            name: "Weekend in Paris",
-            dates: "Sep 05 - Sep 08",
-            cities: 1,
-            image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=800",
-            status: "upcoming"
+    const [upcomingTrips, setUpcomingTrips] = useState([]);
+
+    useEffect(() => {
+        // Load trips from localStorage or use defaults
+        const savedTrips = localStorage.getItem('planKaro_trips');
+        let trips = [];
+
+        if (savedTrips) {
+            trips = JSON.parse(savedTrips);
+        } else {
+            // Default mock trips if storage is empty
+            trips = [
+                {
+                    id: 1,
+                    name: "Summer in Japan",
+                    dates: "Jul 10 - Jul 24",
+                    cities: 3,
+                    image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800",
+                    status: "Upcoming"
+                },
+                {
+                    id: 2,
+                    name: "Weekend in Paris",
+                    dates: "Sep 05 - Sep 08",
+                    cities: 1,
+                    image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=800",
+                    status: "Upcoming" // Changed from Planning to Upcoming for demo
+                }
+            ];
+            // Sync default to local storage so other pages see it
+            localStorage.setItem('planKaro_trips', JSON.stringify(trips));
         }
-    ];
+
+        // Filter for upcoming trips and take first 3
+        const upcoming = trips.filter(t => t.status === 'Upcoming' || t.status === 'Planning').slice(0, 3);
+        setUpcomingTrips(upcoming);
+
+        // Simulate loading
+        const timer = setTimeout(() => setLoading(false), 1000);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Mock Popular Destinations
     const popularDestinations = [
@@ -42,11 +64,7 @@ const DashboardPage = () => {
         { id: 4, name: "New York, USA", image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&q=80&w=600" },
     ];
 
-    useEffect(() => {
-        // Simulate loading
-        const timer = setTimeout(() => setLoading(false), 1500);
-        return () => clearTimeout(timer);
-    }, []);
+
 
     const SkeletonCard = () => (
         <div className="bg-white rounded-[28px] p-4 shadow-soft animate-pulse h-[280px]">

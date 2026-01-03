@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import {
     ChevronDown, ChevronUp, Calendar as CalendarIcon, List,
     MapPin, Clock, DollarSign, Plus, Edit2, Trash2,
-    Plane, Hotel, Utensils, Camera, Sun, Moon
+    Plane, Hotel, Utensils, Camera, Sun, Moon, ShoppingBag
 } from 'lucide-react';
 import Button from './Button';
 
-const TripTimeline = ({ tripData, onAddActivity, onEditActivity, onDeleteActivity }) => {
+const TripTimeline = ({ tripData, onAddActivity, onEditActivity, onDeleteActivity, title = "Trip Timeline", className = "", readOnly = false }) => {
     const [viewMode, setViewMode] = useState('timeline'); // 'timeline' or 'calendar'
     const [expandedDays, setExpandedDays] = useState(new Set([1])); // First day expanded by default
 
@@ -17,6 +17,7 @@ const TripTimeline = ({ tripData, onAddActivity, onEditActivity, onDeleteActivit
         Food: Utensils,
         Culture: Camera,
         Adventure: Sun,
+        Shopping: ShoppingBag,
         Other: Moon
     };
 
@@ -27,6 +28,7 @@ const TripTimeline = ({ tripData, onAddActivity, onEditActivity, onDeleteActivit
         Food: 'bg-green-100 text-green-600 border-green-200',
         Culture: 'bg-primary/10 text-primary border-primary/20',
         Adventure: 'bg-orange-100 text-orange-600 border-orange-200',
+        Shopping: 'bg-pink-100 text-pink-600 border-pink-200',
         Other: 'bg-gray-100 text-gray-600 border-gray-200'
     };
 
@@ -161,20 +163,22 @@ const TripTimeline = ({ tripData, onAddActivity, onEditActivity, onDeleteActivit
                                                         </div>
 
                                                         {/* Action Buttons - Show on hover */}
-                                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <button
-                                                                onClick={() => onEditActivity?.(activity)}
-                                                                className="p-1.5 hover:bg-sand/20 rounded-lg text-text-light hover:text-primary transition-colors"
-                                                            >
-                                                                <Edit2 size={14} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => onDeleteActivity?.(activity.id)}
-                                                                className="p-1.5 hover:bg-red-50 rounded-lg text-text-light hover:text-red-600 transition-colors"
-                                                            >
-                                                                <Trash2 size={14} />
-                                                            </button>
-                                                        </div>
+                                                        {!readOnly && (
+                                                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <button
+                                                                    onClick={() => onEditActivity?.(activity)}
+                                                                    className="p-1.5 hover:bg-sand/20 rounded-lg text-text-light hover:text-primary transition-colors"
+                                                                >
+                                                                    <Edit2 size={14} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => onDeleteActivity?.(activity.id)}
+                                                                    className="p-1.5 hover:bg-red-50 rounded-lg text-text-light hover:text-red-600 transition-colors"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             );
@@ -182,20 +186,22 @@ const TripTimeline = ({ tripData, onAddActivity, onEditActivity, onDeleteActivit
                                     ) : (
                                         <div className="text-center py-8 text-text-light">
                                             <p className="text-sm mb-3">No activities planned yet</p>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => onAddActivity?.(day.day)}
-                                                className="mx-auto"
-                                            >
-                                                <Plus size={16} className="mr-1" />
-                                                Add Activity
-                                            </Button>
+                                            {!readOnly && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => onAddActivity?.(day.day)}
+                                                    className="mx-auto"
+                                                >
+                                                    <Plus size={16} className="mr-1" />
+                                                    Add Activity
+                                                </Button>
+                                            )}
                                         </div>
                                     )}
 
                                     {/* Add Activity Button */}
-                                    {day.activities.length > 0 && (
+                                    {!readOnly && day.activities.length > 0 && (
                                         <button
                                             onClick={() => onAddActivity?.(day.day)}
                                             className="w-full py-3 mt-2 rounded-xl border-2 border-dashed border-sand/50 text-text-light hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all text-sm font-medium flex items-center justify-center gap-2"
@@ -280,7 +286,7 @@ const TripTimeline = ({ tripData, onAddActivity, onEditActivity, onDeleteActivit
             {/* Controls Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white rounded-2xl p-4 shadow-soft">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-display font-bold text-text-dark">Trip Timeline</h2>
+                    <h2 className="text-xl font-display font-bold text-text-dark">{title}</h2>
                     <span className="text-sm text-text-light">({tripData.days.length} days)</span>
                 </div>
 
@@ -290,8 +296,8 @@ const TripTimeline = ({ tripData, onAddActivity, onEditActivity, onDeleteActivit
                         <button
                             onClick={() => setViewMode('timeline')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'timeline'
-                                    ? 'bg-white text-primary shadow-sm'
-                                    : 'text-text-light hover:text-text-dark'
+                                ? 'bg-white text-primary shadow-sm'
+                                : 'text-text-light hover:text-text-dark'
                                 }`}
                         >
                             <List size={16} />
@@ -300,8 +306,8 @@ const TripTimeline = ({ tripData, onAddActivity, onEditActivity, onDeleteActivit
                         <button
                             onClick={() => setViewMode('calendar')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${viewMode === 'calendar'
-                                    ? 'bg-white text-primary shadow-sm'
-                                    : 'text-text-light hover:text-text-dark'
+                                ? 'bg-white text-primary shadow-sm'
+                                : 'text-text-light hover:text-text-dark'
                                 }`}
                         >
                             <CalendarIcon size={16} />

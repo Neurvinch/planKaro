@@ -10,11 +10,13 @@ import Button from '../components/Button';
 import Card from '../components/Card';
 import CitySearchModal from '../components/CitySearchModal';
 import ActivitySelectionModal from '../components/ActivitySelectionModal';
+import TripTimeline from '../components/TripTimeline';
 
 const ItineraryPage = () => {
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
     const [selectedCityForActivity, setSelectedCityForActivity] = useState(null);
+    const [selectedDayForActivity, setSelectedDayForActivity] = useState(null);
     // Mock user
     const user = {
         name: "Alex",
@@ -71,26 +73,63 @@ const ItineraryPage = () => {
         ]
     });
 
-    const handleDelete = (id) => {
-        // Logic to delete activity
+    const handleDelete = (activityId) => {
+        setTrip(prevTrip => {
+            const newCities = prevTrip.cities.map(city => ({
+                ...city,
+                days: city.days.map(day => ({
+                    ...day,
+                    activities: day.activities.filter(a => a.id !== activityId)
+                }))
+            }));
+            return { ...prevTrip, cities: newCities };
+        });
     };
 
     const handleAddCity = (city) => {
         console.log('Adding city:', city);
         // Logic to add city to itinerary
         setIsSearchModalOpen(false);
-        // Optional: show toast or update state
     };
 
     const handleAddActivity = (activity) => {
-        console.log('Adding activity:', activity);
-        // Logic to add activity to the current day/city
+        if (!selectedCityForActivity || !selectedDayForActivity) return;
+
+        setTrip(prevTrip => {
+            const newCities = prevTrip.cities.map(city => {
+                if (city.name !== selectedCityForActivity) return city;
+
+                const newDays = city.days.map(day => {
+                    if (day.day !== selectedDayForActivity) return day;
+
+                    return {
+                        ...day,
+                        activities: [
+                            ...day.activities,
+                            {
+                                ...activity,
+                                id: `new_${Date.now()}`,
+                                title: activity.name, // Map name to title
+                                type: activity.category || "Other", // Map category to type
+                                time: "10:00 AM", // Default time
+                                location: activity.location,
+                                cost: activity.cost
+                            }
+                        ]
+                    };
+                });
+                return { ...city, days: newDays };
+            });
+            return { ...prevTrip, cities: newCities };
+        });
+
         setIsActivityModalOpen(false);
-        // Optional: show toast or update state
+        setSelectedDayForActivity(null);
     };
 
-    const openActivityModal = (cityName) => {
+    const openActivityModal = (cityName, dayNumber) => {
         setSelectedCityForActivity(cityName);
+        setSelectedDayForActivity(dayNumber);
         setIsActivityModalOpen(true);
     };
 
@@ -209,56 +248,15 @@ const ItineraryPage = () => {
                                     </Button>
                                 </div>
 
-                                {/* Drag & Drop Style Cities/Days */}
-                                <div className="space-y-6 pl-4 border-l-2 border-dashed border-sand ml-6">
-                                    {city.days.map((day) => (
-                                        <div key={day.day} className="relative">
-                                            {/* Date Indicator Bubble */}
-                                            <div className="absolute left-[-42px] top-4 w-8 h-8 rounded-full bg-cream border-2 border-sand flex items-center justify-center z-10 shadow-sm">
-                                                <span className="text-xs font-bold text-text-dark">{day.day}</span>
-                                            </div>
-
-                                            <Card className="p-0 overflow-hidden hover:shadow-medium transition-all group">
-                                                <div className="px-6 py-4 bg-sand/5 border-b border-sand flex justify-between items-center">
-                                                    <div>
-                                                        <span className="text-xs font-bold text-primary uppercase tracking-widest mr-2">Day {day.day}</span>
-                                                        <span className="text-sm font-semibold text-text-dark">{day.date}</span>
-                                                    </div>
-                                                    <button className="text-text-light hover:text-text-dark">
-                                                        <MoreVertical size={18} />
-                                                    </button>
-                                                </div>
-
-                                                <div className="p-6 space-y-4">
-                                                    {day.activities.map((activity) => (
-                                                        <div
-                                                            key={activity.id}
-                                                            className="flex items-center gap-4 p-3 rounded-[16px] hover:bg-sand/20 transition-all cursor-move group/item"
-                                                        >
-                                                            <GripVertical size={16} className="text-sand-dark opactity-0 group-hover/item:opacity-70" />
-                                                            <div className="w-20 text-xs font-medium text-text-light flex items-center gap-1">
-                                                                <Clock size={12} className="text-primary" /> {activity.time}
-                                                            </div>
-                                                            <div className="flex-1">
-                                                                <h4 className="text-sm font-bold text-text-dark">{activity.title}</h4>
-                                                                <span className="text-[10px] text-text-light uppercase tracking-wider">{activity.type}</span>
-                                                            </div>
-                                                            <button className="p-1.5 hover:bg-white rounded-full text-text-light group-hover/item:text-primary transition-all">
-                                                                <ChevronRight size={16} />
-                                                            </button>
-                                                        </div>
-                                                    ))}
-
-                                                    <button
-                                                        onClick={() => openActivityModal(city.name)}
-                                                        className="w-full py-4 mt-2 rounded-[16px] border-2 border-dashed border-sand/50 text-text-light hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all text-sm font-medium flex items-center justify-center gap-2"
-                                                    >
-                                                        <Plus size={16} /> Add Activity
-                                                    </button>
-                                                </div>
-                                            </Card>
-                                        </div>
-                                    ))}
+                                {/* Trip Timeline Component */}
+                                <div className="mt-6">
+                                    <TripTimeline
+                                        tripData={{ days: city.days }}
+                                        title="Itinerary"
+                                        onAddActivity={(dayNumber) => openActivityModal(city.name, dayNumber)}
+                                        onEditActivity={(activity) => console.log("Edit", activity)}
+                                        onDeleteActivity={(id) => handleDelete(id)}
+                                    />
                                 </div>
                             </div>
                         ))}

@@ -1,16 +1,26 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
     MapPin, Calendar, Users, DollarSign, Clock, Share2, Copy, Check,
-    Facebook, Twitter, Linkedin, Mail, Link2, Download, Heart,
-    Plane, Hotel, Utensils, Camera, Sun
+    Facebook, Twitter, Linkedin, Mail, Link2, Download, Heart
 } from 'lucide-react';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import TripTimeline from '../components/TripTimeline';
 
 const PublicItineraryPage = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
     const [copied, setCopied] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
+
+    // Check if trip is already saved on mount
+    useEffect(() => {
+        const savedTrips = JSON.parse(localStorage.getItem('planKaro_saved') || '[]');
+        if (savedTrips.includes(id)) {
+            setIsSaved(true);
+        }
+    }, [id]);
 
     // Mock trip data
     const trip = {
@@ -119,13 +129,39 @@ const PublicItineraryPage = () => {
     };
 
     const handleCopyTrip = () => {
-        console.log('Copy trip to your account');
-        // Logic to duplicate trip to user's account
+        // Get existing trips from localStorage or initialize empty array
+        const existingTrips = JSON.parse(localStorage.getItem('planKaro_trips') || '[]');
+
+        // Create a new trip object based on the current public trip
+        // In a real app, the backend would handle ID generation and deep cloning
+        const newTrip = {
+            ...trip,
+            id: Date.now(), // Generate a unique ID
+            name: `Copy of ${trip.name}`,
+            status: 'Planning', // Set status to planning
+            isPublic: false // Reset public flag
+        };
+
+        // Add to local storage
+        const updatedTrips = [...existingTrips, newTrip];
+        localStorage.setItem('planKaro_trips', JSON.stringify(updatedTrips));
+
+        // Navigate to my trips page
+        navigate('/my-trips');
     };
 
     const handleSaveTrip = () => {
+        const savedTrips = JSON.parse(localStorage.getItem('planKaro_saved') || '[]');
+        let newSavedTrips;
+
+        if (isSaved) {
+            newSavedTrips = savedTrips.filter(savedId => savedId !== id);
+        } else {
+            newSavedTrips = [...savedTrips, id];
+        }
+
+        localStorage.setItem('planKaro_saved', JSON.stringify(newSavedTrips));
         setIsSaved(!isSaved);
-        console.log('Save trip to favorites');
     };
 
     const shareToSocial = (platform) => {
@@ -342,80 +378,12 @@ const PublicItineraryPage = () => {
                 </div>
 
                 {/* Day-by-Day Itinerary */}
-                <div>
-                    <h2 className="text-2xl font-display font-bold text-text-dark mb-6">Day-by-Day Itinerary</h2>
-                    <div className="space-y-6">
-                        {trip.days.map((day, dayIndex) => {
-                            const isLastDay = dayIndex === trip.days.length - 1;
-
-                            return (
-                                <div key={day.day} className="relative">
-                                    {/* Timeline connector */}
-                                    {!isLastDay && (
-                                        <div className="absolute left-6 top-16 bottom-0 w-0.5 bg-gradient-to-b from-primary/30 to-sand/50 -mb-6" />
-                                    )}
-
-                                    <Card className="p-6">
-                                        <div className="flex items-start gap-4 mb-4">
-                                            {/* Day Badge */}
-                                            <div className="relative z-10 flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white font-bold shadow-soft">
-                                                {day.day}
-                                            </div>
-
-                                            <div className="flex-1">
-                                                <h3 className="text-xl font-bold text-text-dark">Day {day.day}</h3>
-                                                <div className="flex items-center gap-3 text-sm text-text-light mt-1">
-                                                    <span className="flex items-center gap-1">
-                                                        <Calendar size={14} />
-                                                        {day.date}
-                                                    </span>
-                                                    <span className="flex items-center gap-1">
-                                                        <MapPin size={14} />
-                                                        {day.city}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Activities */}
-                                        <div className="space-y-3 pl-16">
-                                            {day.activities.map((activity, actIndex) => {
-                                                const Icon = activity.icon;
-
-                                                return (
-                                                    <div key={activity.id} className="relative">
-                                                        {/* Activity connector */}
-                                                        {actIndex < day.activities.length - 1 && (
-                                                            <div className="absolute left-5 top-10 bottom-0 w-px bg-sand/30" />
-                                                        )}
-
-                                                        <div className="flex items-start gap-3">
-                                                            <div className={`w-10 h-10 rounded-full ${activity.color} border-2 border-white shadow-sm flex items-center justify-center flex-shrink-0`}>
-                                                                <Icon size={18} />
-                                                            </div>
-                                                            <div className="flex-1 pt-1">
-                                                                <div className="flex items-center gap-2 mb-1">
-                                                                    <span className="text-xs font-semibold text-text-light">
-                                                                        {activity.time}
-                                                                    </span>
-                                                                    <span className={`text-xs px-2 py-0.5 rounded-full ${activity.color} border`}>
-                                                                        {activity.type}
-                                                                    </span>
-                                                                </div>
-                                                                <h4 className="font-semibold text-text-dark">
-                                                                    {activity.title}
-                                                                </h4>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </Card>
-                                </div>
-                            );
-                        })}
-                    </div>
+                <div className="mb-12">
+                    <TripTimeline
+                        tripData={{ days: trip.days }}
+                        title="Day-by-Day Itinerary"
+                        readOnly={true}
+                    />
                 </div>
 
                 {/* Call to Action */}

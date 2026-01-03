@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, Eye, Edit2, Trash2, Plus, Search } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -13,7 +13,8 @@ const MyTripsPage = () => {
     };
 
     // Mock trips data
-    const [trips, setTrips] = useState([
+    // Mock trips data (Moved outside to be used as default)
+    const initialMockTrips = [
         {
             id: 1,
             name: "Summer in Japan",
@@ -50,7 +51,18 @@ const MyTripsPage = () => {
             image: "https://images.unsplash.com/photo-1531310197839-ccf54634509e?auto=format&fit=crop&q=80&w=800",
             status: "Draft"
         }
-    ]);
+    ];
+
+    // Initialize state with localStorage or mock data
+    const [trips, setTrips] = useState(() => {
+        const savedTrips = localStorage.getItem('planKaro_trips');
+        return savedTrips ? JSON.parse(savedTrips) : initialMockTrips;
+    });
+
+    // Save to localStorage whenever trips change
+    useEffect(() => {
+        localStorage.setItem('planKaro_trips', JSON.stringify(trips));
+    }, [trips]);
 
     const handleDelete = (id) => {
         if (confirm('Are you sure you want to delete this trip?')) {
