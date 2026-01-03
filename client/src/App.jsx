@@ -1,8 +1,10 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import Button from './components/Button';
 import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
+import CreateTripPage from './pages/CreateTripPage';
 
 // Placeholder Home Page
 const HomePage = () => (
@@ -18,7 +20,11 @@ const HomePage = () => (
         </p>
         <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
           <div className="rounded-md shadow">
-
+            <Link to="/create-trip">
+              <Button size="lg" className="px-8 py-3 text-lg">
+                Start Planning
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -33,6 +39,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/create-trip" element={<CreateTripPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
