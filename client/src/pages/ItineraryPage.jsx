@@ -9,9 +9,12 @@ import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import CitySearchModal from '../components/CitySearchModal';
+import ActivitySelectionModal from '../components/ActivitySelectionModal';
 
 const ItineraryPage = () => {
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+    const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
+    const [selectedCityForActivity, setSelectedCityForActivity] = useState(null);
     // Mock user
     const user = {
         name: "Alex",
@@ -77,6 +80,18 @@ const ItineraryPage = () => {
         // Logic to add city to itinerary
         setIsSearchModalOpen(false);
         // Optional: show toast or update state
+    };
+
+    const handleAddActivity = (activity) => {
+        console.log('Adding activity:', activity);
+        // Logic to add activity to the current day/city
+        setIsActivityModalOpen(false);
+        // Optional: show toast or update state
+    };
+
+    const openActivityModal = (cityName) => {
+        setSelectedCityForActivity(cityName);
+        setIsActivityModalOpen(true);
     };
 
     return (
@@ -232,7 +247,10 @@ const ItineraryPage = () => {
                                                         </div>
                                                     ))}
 
-                                                    <button className="w-full py-4 mt-2 rounded-[16px] border-2 border-dashed border-sand/50 text-text-light hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all text-sm font-medium flex items-center justify-center gap-2">
+                                                    <button
+                                                        onClick={() => openActivityModal(city.name)}
+                                                        className="w-full py-4 mt-2 rounded-[16px] border-2 border-dashed border-sand/50 text-text-light hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all text-sm font-medium flex items-center justify-center gap-2"
+                                                    >
                                                         <Plus size={16} /> Add Activity
                                                     </button>
                                                 </div>
@@ -264,6 +282,12 @@ const ItineraryPage = () => {
                 isOpen={isSearchModalOpen}
                 onClose={() => setIsSearchModalOpen(false)}
                 onAddCity={handleAddCity}
+            />
+            <ActivitySelectionModal
+                isOpen={isActivityModalOpen}
+                onClose={() => setIsActivityModalOpen(false)}
+                onAddActivity={handleAddActivity}
+                cityName={selectedCityForActivity}
             />
         </div>
     );
