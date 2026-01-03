@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Plus, MapPin, Calendar, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import { Link } from 'react-router-dom';
+
+interface Trip {
+    id: number;
+    name: string;
+    dates: string;
+    cities: number;
+    image: string;
+    status: string;
+}
 
 const DashboardPage = () => {
     const [loading, setLoading] = useState(true);
@@ -14,7 +24,7 @@ const DashboardPage = () => {
         avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
     };
 
-    const [upcomingTrips, setUpcomingTrips] = useState([]);
+    const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([]);
 
     useEffect(() => {
         // Load trips from localStorage or use defaults
@@ -116,7 +126,21 @@ const DashboardPage = () => {
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Staggered Grid */}
+                    <motion.div
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                        initial="hidden"
+                        animate="visible"
+                        variants={{
+                            hidden: { opacity: 0 },
+                            visible: {
+                                opacity: 1,
+                                transition: {
+                                    staggerChildren: 0.15
+                                }
+                            }
+                        }}
+                    >
                         {loading ? (
                             <>
                                 <SkeletonCard />
@@ -125,42 +149,46 @@ const DashboardPage = () => {
                             </>
                         ) : (
                             upcomingTrips.map((trip) => (
-                                <Link key={trip.id} to={`/itinerary/${trip.id}`} className="block">
-                                    <Card className="p-4 hover:shadow-medium transition-shadow cursor-pointer group h-full">
-                                        <div className="relative h-48 mb-4 overflow-hidden rounded-[20px]">
-                                            <img
-                                                src={trip.image}
-                                                alt={trip.name}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                            />
-                                            <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-primary">
-                                                {trip.cities} Cities
+                                <motion.div key={trip.id} variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+                                    <Link to={`/itinerary/${trip.id}`} className="block h-full">
+                                        <Card className="p-4 hover:shadow-medium transition-shadow cursor-pointer group h-full">
+                                            <div className="relative h-48 mb-4 overflow-hidden rounded-[20px]">
+                                                <img
+                                                    src={trip.image}
+                                                    alt={trip.name}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                />
+                                                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-primary">
+                                                    {trip.cities} Cities
+                                                </div>
                                             </div>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-text-dark mb-2 group-hover:text-primary transition-colors">
-                                            {trip.name}
-                                        </h3>
-                                        <div className="flex items-center text-text-light text-sm">
-                                            <Calendar size={16} className="mr-2 text-primary" />
-                                            {trip.dates}
-                                        </div>
-                                    </Card>
-                                </Link>
+                                            <h3 className="text-xl font-bold text-text-dark mb-2 group-hover:text-primary transition-colors">
+                                                {trip.name}
+                                            </h3>
+                                            <div className="flex items-center text-text-light text-sm">
+                                                <Calendar size={16} className="mr-2 text-primary" />
+                                                {trip.dates}
+                                            </div>
+                                        </Card>
+                                    </Link>
+                                </motion.div>
                             ))
                         )}
 
                         {!loading && (
-                            <Link to="/create-trip" className="block">
-                                <div className="h-full min-h-[280px] rounded-[28px] border-2 border-dashed border-sand hover:border-primary/50 bg-sand/10 flex flex-col items-center justify-center text-center p-6 transition-all cursor-pointer group">
-                                    <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-soft mb-4 group-hover:scale-110 transition-transform">
-                                        <Plus size={32} className="text-primary" />
-                                    </div>
-                                    <h3 className="text-lg font-semibold text-text-dark mb-1">Create New Trip</h3>
-                                    <p className="text-text-light text-sm">Start planning your next journey</p>
-                                </div>
-                            </Link>
+                            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+                                <Link to="/create-trip" className="block h-full">
+                                    <Card noHover className="h-full min-h-[280px] rounded-[28px] border-2 border-dashed border-sand hover:border-primary/50 bg-sand/10 flex flex-col items-center justify-center text-center p-6 transition-all cursor-pointer group !shadow-none hover:bg-sand/20">
+                                        <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-soft mb-4 group-hover:scale-110 transition-transform">
+                                            <Plus size={32} className="text-primary" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-text-dark mb-1">Create New Trip</h3>
+                                        <p className="text-text-light text-sm">Start planning your next journey</p>
+                                    </Card>
+                                </Link>
+                            </motion.div>
                         )}
-                    </div>
+                    </motion.div>
                 </section>
 
                 {/* Popular Destinations */}

@@ -5,6 +5,16 @@ import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import Card from '../components/Card';
 
+interface Trip {
+    id: number;
+    name: string;
+    dates: string;
+    cities: number;
+    location: string;
+    image: string;
+    status: string;
+}
+
 const MyTripsPage = () => {
     // Mock user
     const user = {
@@ -14,7 +24,7 @@ const MyTripsPage = () => {
 
     // Mock trips data
     // Mock trips data (Moved outside to be used as default)
-    const initialMockTrips = [
+    const initialMockTrips: Trip[] = [
         {
             id: 1,
             name: "Royal Rajasthan Tour",
@@ -54,7 +64,7 @@ const MyTripsPage = () => {
     ];
 
     // Initialize state with localStorage or mock data
-    const [trips, setTrips] = useState(() => {
+    const [trips, setTrips] = useState<Trip[]>(() => {
         const savedTrips = localStorage.getItem('planKaro_trips');
         return savedTrips ? JSON.parse(savedTrips) : initialMockTrips;
     });

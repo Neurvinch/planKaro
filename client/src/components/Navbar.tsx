@@ -3,7 +3,16 @@ import { Menu, X, Globe, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from './Button';
 
-const Navbar = ({ user }) => {
+interface User {
+    name: string;
+    avatar: string;
+}
+
+interface NavbarProps {
+    user?: User;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ user }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (

@@ -1,5 +1,7 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import PageTransition from './components/PageTransition';
 import Navbar from './components/Navbar';
 import Button from './components/Button';
 import SignupPage from './pages/SignupPage';
@@ -35,23 +37,33 @@ const HomePage = () => (
   </div>
 );
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><HomePage /></PageTransition>} />
+        <Route path="/signup" element={<PageTransition><SignupPage /></PageTransition>} />
+        <Route path="/login" element={<PageTransition><LoginPage /></PageTransition>} />
+        <Route path="/create-trip" element={<PageTransition><CreateTripPage /></PageTransition>} />
+        <Route path="/dashboard" element={<PageTransition><DashboardPage /></PageTransition>} />
+        <Route path="/my-trips" element={<PageTransition><MyTripsPage /></PageTransition>} />
+        <Route path="/itinerary/:id" element={<PageTransition><ItineraryPage /></PageTransition>} />
+        <Route path="/itinerary" element={<PageTransition><ItineraryPage /></PageTransition>} />
+        <Route path="/budget/:id" element={<PageTransition><BudgetPage /></PageTransition>} />
+        <Route path="/timeline/:id" element={<PageTransition><TimelinePage /></PageTransition>} />
+        <Route path="/public/itinerary/:id" element={<PageTransition><PublicItineraryPage /></PageTransition>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/create-trip" element={<CreateTripPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/my-trips" element={<MyTripsPage />} />
-        <Route path="/itinerary/:id" element={<ItineraryPage />} />
-        <Route path="/itinerary" element={<ItineraryPage />} />
-        <Route path="/budget/:id" element={<BudgetPage />} />
-        <Route path="/timeline/:id" element={<TimelinePage />} />
-        <Route path="/public/itinerary/:id" element={<PublicItineraryPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <AnimatedRoutes />
     </BrowserRouter>
   );
 }

@@ -77,7 +77,7 @@ const CreateTripPage = () => {
                                     id="tripName"
                                     name="tripName"
                                     required
-                                    placeholder="e.g. Summer in Italy"
+                                    placeholder="e.g. Summer in Kerala"
                                     value={formData.tripName}
                                     onChange={handleChange}
                                     className="block w-full px-4 py-2.5 bg-sand/30 border border-sand rounded-[16px] focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm placeholder-text-light/50"
