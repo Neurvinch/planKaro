@@ -148,15 +148,14 @@ router.post('/:id/copy', authenticate, async (req: AuthRequest, res: Response) =
         const tripToCopy = await Trip.findById(req.params.id);
         if (!tripToCopy) return res.status(404).json({ message: 'Trip not found' });
 
-        const newTripData = tripToCopy.toObject();
-        delete newTripData._id;
-        delete newTripData.createdAt;
-        delete newTripData.updatedAt;
+        const copyData = tripToCopy.toObject();
+        const { _id, createdAt, updatedAt, ...rest } = copyData;
 
-        newTripData.userId = req.user;
-        newTripData.name = `Copy of ${newTripData.name}`;
-
-        const newTrip = new Trip(newTripData);
+        const newTrip = new Trip({
+            ...rest,
+            userId: req.user as any,
+            name: `Copy of ${rest.name}`
+        });
         await newTrip.save();
         res.json(newTrip);
     } catch (err) {
