@@ -14,6 +14,10 @@ import BudgetPage from './pages/BudgetPage';
 import TimelinePage from './pages/TimelinePage';
 import PublicItineraryPage from './pages/PublicItineraryPage';
 
+import CommunityPage from './pages/CommunityPage';
+import UserProfilePage from './pages/UserProfilePage';
+import AdminPage from './pages/AdminPage';
+
 // Placeholder Home Page
 const HomePage = () => (
   <div className="min-h-screen bg-cream">
@@ -49,6 +53,9 @@ const AnimatedRoutes = () => {
         <Route path="/create-trip" element={<PageTransition><CreateTripPage /></PageTransition>} />
         <Route path="/dashboard" element={<PageTransition><DashboardPage /></PageTransition>} />
         <Route path="/my-trips" element={<PageTransition><MyTripsPage /></PageTransition>} />
+        <Route path="/community" element={<PageTransition><CommunityPage /></PageTransition>} />
+        <Route path="/profile" element={<PageTransition><UserProfilePage /></PageTransition>} />
+        <Route path="/admin" element={<PageTransition><AdminPage /></PageTransition>} />
         <Route path="/itinerary/:id" element={<PageTransition><ItineraryPage /></PageTransition>} />
         <Route path="/itinerary" element={<PageTransition><ItineraryPage /></PageTransition>} />
         <Route path="/budget/:id" element={<PageTransition><BudgetPage /></PageTransition>} />
