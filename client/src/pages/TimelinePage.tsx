@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import TripTimeline from '../components/TripTimeline';
 
-const TimelinePage = () => {
+const TimelinePage: React.FC = () => {
     // Mock user
     const user = {
         name: "Alex",
@@ -135,19 +135,16 @@ const TimelinePage = () => {
         ]
     };
 
-    const handleAddActivity = (dayNumber) => {
+    const handleAddActivity = (dayNumber: number) => {
         console.log('Add activity to day:', dayNumber);
-        // Logic to open activity modal
     };
 
-    const handleEditActivity = (activity) => {
+    const handleEditActivity = (activity: any) => {
         console.log('Edit activity:', activity);
-        // Logic to edit activity
     };
 
-    const handleDeleteActivity = (activityId) => {
+    const handleDeleteActivity = (activityId: string) => {
         console.log('Delete activity:', activityId);
-        // Logic to delete activity
     };
 
     return (
@@ -155,9 +152,8 @@ const TimelinePage = () => {
             <Navbar user={user} />
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header */}
                 <div className="flex items-center gap-4 mb-8">
-                    <Link to="/itinerary/1">
+                    <Link to="/trip/1">
                         <button className="p-2 hover:bg-sand/20 rounded-full transition-colors">
                             <ArrowLeft size={24} className="text-text-dark" />
                         </button>
@@ -170,7 +166,6 @@ const TimelinePage = () => {
                     </div>
                 </div>
 
-                {/* Trip Timeline Component */}
                 <TripTimeline
                     tripData={tripData}
                     onAddActivity={handleAddActivity}
