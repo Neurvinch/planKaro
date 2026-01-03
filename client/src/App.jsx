@@ -10,6 +10,7 @@ import MyTripsPage from './pages/MyTripsPage';
 import ItineraryPage from './pages/ItineraryPage';
 import BudgetPage from './pages/BudgetPage';
 import TimelinePage from './pages/TimelinePage';
+import PublicItineraryPage from './pages/PublicItineraryPage';
 
 // Placeholder Home Page
 const HomePage = () => (
@@ -48,6 +49,7 @@ function App() {
         <Route path="/itinerary" element={<ItineraryPage />} />
         <Route path="/budget/:id" element={<BudgetPage />} />
         <Route path="/timeline/:id" element={<TimelinePage />} />
+        <Route path="/public/itinerary/:id" element={<PublicItineraryPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
