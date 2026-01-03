@@ -7,7 +7,13 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI 
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+    console.error('❌ CRITICAL ERROR: MONGODB_URI is not defined in environment variables.');
+    console.error('Please add MONGODB_URI to your Render Environment Variables.');
+    process.exit(1);
+}
 
 import authRoutes from './routes/auth.ts';
 import tripRoutes from './routes/trips.ts';
